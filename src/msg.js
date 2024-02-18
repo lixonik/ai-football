@@ -1,7 +1,7 @@
 module.exports = {
     parseMsg(msg) { // Разбор сообщения
-        if (msg.endsWith("\u0000")) // Удаление символа в конце
-            msg = msg.substring(0, msg.length - "\u0000".length)
+        if (msg.endsWith('\u0000')) // Удаление символа в конце
+            msg = msg.substring(0, msg.length - '\u0000'.length)
         // Разбор сообщения
         let array = msg.match(/(\(|[-\d\.]+|[\\\"\w]+|\))/g)
         let res = { msg, p: [] } // Результирующее сообщение
@@ -12,7 +12,7 @@ module.exports = {
     },
     parse(array, index, res) { // Разбор сообщения в скобках
         // Всегда с открывающей скобки
-        if (array[index.idx] !== "(")
+        if (array[index.idx] !== '(')
             return
         index.idx++
         // Разбор внутри скобок
@@ -20,9 +20,9 @@ module.exports = {
     },
     parseInner(array, index, res) {
         // Пока не встретится закрывающая скобка
-        while (array[index.idx] !== ")") {
+        while (array[index.idx] !== ')') {
             // Если внутри еще одна скобка
-            if (array[index.idx] === "(") {
+            if (array[index.idx] === '(') {
                 let r = { p: [] }
                 // Рекурсивный вызов с index
                 this.parse(array, index, r)
@@ -44,5 +44,5 @@ module.exports = {
             for (let value of res.p)
                 this.makeCmd(value)
         }
-    }
+    },
 }
