@@ -1,6 +1,6 @@
 const Agent = require('./agent')
 const VERSION = 7
-let teamName = ""
-let agent = new Agent();
+let teamName = ''
+let agent = new Agent()
 require('./socket')(agent, teamName, VERSION)
-agent.socketSend("move", `-15 0`)
+agent.socketSend('move', `-15 0`)
