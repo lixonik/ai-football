@@ -5,4 +5,4 @@ const VERSION = 7
 let teamName = 'IBAPRO'
 let agent = new Agent()
 socketSetup(agent, teamName, VERSION)
-agent.socketSend('move', `-15 0`)
+// agent.socketSend('move', `-15 0`)

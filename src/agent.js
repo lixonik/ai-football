@@ -6,17 +6,27 @@ export class Agent {
         this.position = 'l' // По умолчанию - левая половина поля
         this.run = false // Игра начата
         this.act = null // Действия
+        this.turn_value = 0;
         this.rl = readline.createInterface({ // Чтение консоли
             input: process.stdin,
             output: process.stdout,
         })
         this.rl.on('line', (input) => { // Обработка строки из консоли
+            if (!this.run) {
+                let list = input.split(' ').map(Number)
+                if (list.length() === 3) {
+                    this.turn_value = list
+                    this.socketSend('move', `${list[0]} ${list[1]}`)
+                }
+            }
             if (this.run) { // Если игра начата
                 // Движения вперед, вправо, влево, удар по мячу
                 if ('w' === input) this.act = { n: 'dash', v: 100 }
                 if ('d' === input) this.act = { n: 'turn', v: 20 }
                 if ('a' === input) this.act = { n: 'turn', v: -20 }
                 if ('s' === input) this.act = { n: 'kick', v: 100 }
+
+                if (this.turn_value !== 0) this.act = { n: 'turn', v: this.turn_value }
             }
         })
     }
