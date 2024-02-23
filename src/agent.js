@@ -1,7 +1,7 @@
-const Msg = require('./msg')
-const readline = require('readline')
+import readline from 'readline'
+import { Message } from './msg.js'
 
-class Agent {
+export class Agent {
     constructor() {
         this.position = 'l' // По умолчанию - левая половина поля
         this.run = false // Игра начата
@@ -36,7 +36,7 @@ class Agent {
     }
 
     processMsg(msg) { // Обработка сообщения
-        let data = Msg.parseMsg(msg) // Разбор сообщения
+        let data = Message.parseMsg(msg) // Разбор сообщения
         if (!data) throw new Error('Parse error\n' + msg)
         // Первое (hear) - начало игры
         if (data.cmd === 'hear') this.run = true
@@ -65,5 +65,3 @@ class Agent {
         }
     }
 }
-
-module.exports = Agent // Экспорт игрока
