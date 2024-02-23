@@ -1,50 +1,48 @@
-export class Message {
-    static parseMsg(msg) { // Разбор сообщения
+module.exports = {
+    parseMsg(msg) { // Разбор сообщения
         if (msg.endsWith('\u0000')) // Удаление символа в конце
             msg = msg.substring(0, msg.length - '\u0000'.length)
         // Разбор сообщения
         let array = msg.match(/(\(|[-\d\.]+|[\\\"\w]+|\))/g)
         let res = { msg, p: [] } // Результирующее сообщение
         // Анализировать с индекса 0, результат в res
-        Message.#parse(array, 0, res)
-        Message.#makeCmd(res) // Выделить команду
+        this.parse(array, { idx: 0 }, res)
+        this.makeCmd(res) // Выделить команду
         return res
-    }
-
-    static #parse(array, index, res) { // Разбор сообщения в скобках
+    },
+    parse(array, index, res) { // Разбор сообщения в скобках
         // Всегда с открывающей скобки
-        if (array[index] !== '(')
+        if (array[index.idx] !== '(')
             return
-        index++
+        index.idx++
         // Разбор внутри скобок
-        Message.#parseInner(array, index, res)
-    }
-
-    static #parseInner(array, index, res) {
+        this.parseInner(array, index, res)
+    },
+    parseInner(array, index, res) {
         // Пока не встретится закрывающая скобка
-        while (array[index] !== ')') {
+        while (array[index.idx] !== ')') {
             // Если внутри еще одна скобка
-            if (array[index] === '(') {
+            if (array[index.idx] === '(') {
                 let r = { p: [] }
                 // Рекурсивный вызов с index
-                Message.#parse(array, index, r)
+                this.parse(array, index, r)
                 res.p.push(r)
             } else {
                 // Одиночный параметр
-                let num = parseFloat(array[index])
-                res.p.push(isNaN(num) ? array[index] : num)
-                index++
+                let num = parseFloat(array[index.idx])
+                res.p.push(isNaN(num) ? array[index.idx] : num)
+                index.idx++
             }
         }
-        index++
-    }
-
-    static #makeCmd(res) { // Выделение команды
+        index.idx++
+    },
+    makeCmd(res) { // Выделение команды
         if (res.p && res.p.length > 0) {
             // Первый параметр - команда
             res.cmd = res.p.shift()
             // Выделить команды у параметров
-            res.p.forEach(value => Message.#makeCmd(value))
+            for (let value of res.p)
+                this.makeCmd(value)
         }
-    }
+    },
 }

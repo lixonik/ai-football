@@ -1,8 +1,6 @@
-import { Agent } from './agent.js'
-import { socketSetup } from './socket.js'
-
+const Agent = require('./agent')
 const VERSION = 7
-let teamName = 'IBAPRO'
+let teamName = 'ibapro'
 let agent = new Agent()
-socketSetup(agent, teamName, VERSION)
+require('./socket')(agent, teamName, VERSION)
 agent.socketSend('move', `-15 0`)
