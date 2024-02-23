@@ -14,7 +14,7 @@ class Agent {
         this.rl.on('line', (input) => { // Обработка строки из консоли
             if (!this.run) {
                 let list = input.split(' ').map(Number)
-                if (list.length() === 3) {
+                if (list.length === 3) {
                     this.turn_value = list
                     this.socketSend('move', `${list[0]} ${list[1]}`)
                 }
