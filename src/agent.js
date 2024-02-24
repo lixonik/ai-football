@@ -3,10 +3,11 @@ const readline = require('readline')
 
 class Agent {
     constructor() {
-        this.position = 'l' // По умолчанию - левая половина поля
+        this.side = 'l' // По умолчанию - левая половина поля
         this.run = false // Игра начата
         this.act = null // Действия
         this.turn_value = 0;
+        this.gamemode = "before_kick_off"
         this.rl = readline.createInterface({ // Чтение консоли
             input: process.stdin,
             output: process.stdout,
@@ -47,13 +48,18 @@ class Agent {
         let data = Msg.parseMsg(msg) // Разбор сообщения
         if (!data) throw new Error('Parse error\n' + msg)
         // Первое (hear) - начало игры
-        if (data.cmd === 'hear') this.run = true
+        if (data.cmd === 'hear') {
+            this.run = true
+            if (data.p[1] == "referee")
+                this.gamemode = data.p[2]
+        }
         if (data.cmd === 'init') this.initAgent(data.p)//Инициализация
         this.analyzeEnv(data.msg, data.cmd, data.p) // Обработка
     }
 
     initAgent(p) {
-        if (p[0] === 'r') this.position = 'r' // Правая половина поля
+        if (p[0] === 'r') this.side = 'r' // Правая половина поля
+        else this.side = 'l'    // Левая половина поля
         if (p[1]) this.id = p[1] // id игрока
     }
 
