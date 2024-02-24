@@ -4,8 +4,12 @@
   "description": "",
   "main": "./src/app.js",
   "scripts": {
-    "start": "node ./src/app.js"
+    "start": "node ./src/app.js",
+    "param": "node ./src/app.js -p -15 0 20"
   },
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^12.0.0"
+  }
 }

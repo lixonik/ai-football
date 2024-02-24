@@ -10,7 +10,7 @@ module.exports = function(agent, teamName, version) {
         agent.msgGot(msg) // Обработка полученного сообщения
     })
     socket.sendMsg = function(msg) { // Отправка сообщения серверу
-        socket.send(Buffer.from(msg), 6000, 'localhost', (err, bytes) => {
+        socket.send(Buffer.from(msg), 6000, '192.168.0.255', (err, bytes) => {
             if (err) throw err
         })
 
