@@ -25,8 +25,6 @@ class Agent {
                 if ('d' === input) this.act = { n: 'turn', v: 20 }
                 if ('a' === input) this.act = { n: 'turn', v: -20 }
                 if ('s' === input) this.act = { n: 'kick', v: 100 }
-
-                if (this.turn_value !== 0) this.act = { n: 'turn', v: this.turn_value }
             }
         })
     }
@@ -60,6 +58,7 @@ class Agent {
     }
 
     analyzeEnv(msg, cmd, p) { // Анализ сообщения
+        if (this.turn_value !== 0) this.act = { n: 'turn', v: parseInt(this.turn_value) }
     }
 
     sendCmd() {
