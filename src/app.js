@@ -5,14 +5,16 @@ const program = new Command();
 
 program
     .option('-p, --params <params...>', 'Agent params [x, y, turn]')
+    .option('-t, --team <team>', 'Agent params [x, y, turn]')
 
 program.parse()
 
 // console.log(program.opts())
 
-
 const VERSION = 7
-let teamName = 'ibapro'
+const OURTEAM = "IBAPRO"
+
+let teamName = program.opts().team ? program.opts().team : OURTEAM;
 let agent = new Agent(teamName)
 require('./socket')(agent, teamName, VERSION)
 const [x, y, turn] = program.opts().params

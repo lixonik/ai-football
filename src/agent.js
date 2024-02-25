@@ -73,7 +73,7 @@ class Agent {
 
     analyzeEnv(msg, cmd, p) { // Анализ сообщения
         if (this.turn_value !== 0) this.act = { n: 'turn', v: this.turn_value }
-        
+
         {
             if (cmd !== 'see') return
 
@@ -179,11 +179,11 @@ class Agent {
             }
             let vec = this.rotate(bestZeroVec, -obj.direction)
             obj.x = roundToHund(this.x + vec.x * obj.distance)
-            obj.y = -roundToHund(this.y + vec.y * obj.distance) // Crutch, needs to be fixed
+            obj.y = -roundToHund(this.y + vec.y * obj.distance)
             if (obj.type === 'enemy')
                 console.log('Enemy: ' + obj.x + ' ' + obj.y)
         }
-        this.y *= -1 // Crutch, needs to be fixed
+        this.y *= -1
         console.log(`Player ${this.id}: ` + this.x + ' ' + this.y)
     }
 
@@ -232,8 +232,6 @@ class Agent {
             x: f1.x + (xt * cos_b - yt * sin_b) * d1,
             y: f1.y + (xt * sin_b + yt * cos_b) * d1,
         }
-
-        // console.log(`location: ${location.x} ${location.y}`)
 
         return location
     }

@@ -5,7 +5,8 @@
   "main": "./src/app.js",
   "scripts": {
     "start": "node ./src/app.js",
-    "param": "node ./src/app.js -p -15 0 20"
+    "param": "node ./src/app.js -p -15 0 20",
+    "enemy": "node ./src/app.js -p -15 0 20 -t teamB"
   },
   "author": "",
   "license": "MIT",
