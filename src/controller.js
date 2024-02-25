@@ -4,7 +4,7 @@ const Actions = require('./Actions')
 
 const DIST_BALL = 0.5
 const DIST_FLAG = 3
-const FOLLOW_ANGLE = 10
+const FOLLOW_ANGLE = 15
 const MAX_GOAL_DIST = 20
 const KICK_FORCE = 100
 const DRIBBLE_FORCE = 15
@@ -85,8 +85,9 @@ class Controller {
 
     pushAction(...args) {
         const [actionType, ...opts] = args
-
-        this.type.push(new Actions[actionType](opts))
+        // console.log(...opts)
+        this.type.push(new actionType(...opts))
+        // console.log(this.type)
     }
 
     clearType() {
@@ -100,8 +101,9 @@ class Controller {
 
     follow(object) {
         let target = this.agent.objects.find(obj => object.equals(obj))
-        if (target === null) 
+        if (target === undefined || target === null) {
             return () => { this.turn(SEARCH_ANGLE) }
+        }
         object.target = { x: target.x, y: target.y }
         return this.goTo(object)
     }
@@ -117,7 +119,7 @@ class Controller {
         }
 
         if (object.isBall !== null && object.isBall) {
-            if (dist > DIST_BALL * 6) {
+            if (dist > DIST_FLAG) {
                 if (this.ballIsNear()) {
                     return () => {
                         this.kick(DRIBBLE_FORCE, -angle)
@@ -158,6 +160,7 @@ class Controller {
 
             if (line.startsWith("goto")) {
                 let params = line.split(' ');
+                // console.log(params.length, params)
                 if (params.length < 4) {
                     console.error("Incorrect command!")
                     continue
@@ -207,7 +210,7 @@ class Controller {
                 continue
             }
             if (line.startsWith("clear")) {
-                this.clear()
+                this.clearType()
                 continue
             }
         }
@@ -215,4 +218,4 @@ class Controller {
 
 }
 
-moddule.exports = Controller
+module.exports = Controller

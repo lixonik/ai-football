@@ -10,7 +10,6 @@ class Agent {
         this.side = 'l' // По умолчанию - левая половина поля
         this.run = false // Игра начата
         this.act = () => {} // Действия
-        this.turn_value = 0
         this.gamemode = 'before_kick_off'
         this.objects = null
         this.zeroVector = null
@@ -40,7 +39,6 @@ class Agent {
         }
         let data = msg.toString('utf8') // Приведение к строке
         this.processMsg(data) // Разбор сообщения
-        if (data.cmd === "see") this.sendCmd() // Отправка команды
     }
 
     setSocket(socket) { // Настройка сокета
@@ -56,12 +54,14 @@ class Agent {
         if (!data) throw new Error('Parse error\n' + msg)
         // Первое (hear) - начало игры
         if (data.cmd === 'hear') {
-            this.run = true
             if (data.p[1] === 'referee')
                 this.gamemode = data.p[2]
+            if(this.gamemode === "play_on")
+                this.run = true
         }
         if (data.cmd === 'init') this.initAgent(data.p)//Инициализация
         this.analyzeEnv(data.msg, data.cmd, data.p) // Обработка
+        if (data.cmd === "see") this.sendCmd() // Отправка команды
     }
 
     initAgent(p) {
@@ -71,8 +71,6 @@ class Agent {
     }
 
     analyzeEnv(msg, cmd, p) { // Анализ сообщения
-        if (this.turn_value !== 0) this.act = { n: 'turn', v: this.turn_value }
-
         {
             if (cmd !== 'see') return
 
@@ -222,7 +220,7 @@ class Agent {
     }
 
     sendCmd() {
-        if (!this.run) // Игра начата
+        if (!this.run) // Игра не начата
             return
         this.act = this.controller.getAction()
         this.act()

@@ -15,7 +15,7 @@ const OURTEAM = 'IBAPRO'
 let teamName = program.opts().team ?? OURTEAM
 let agent = new Agent(teamName)
 require('./socket')(agent, teamName, VERSION)
-const [x, y, turn] = program.opts().params
+const [x, y] = program.opts().params
 
 let rl = readline.createInterface({ // Чтение консоли
     input: process.stdin,
@@ -23,13 +23,12 @@ let rl = readline.createInterface({ // Чтение консоли
 })
 
 rl.on('line', (input) => {
-    agent.controls.parseRefereeCmd(input);
+    agent.controller.parseRefereeCmd(input);
 })
 
 /**
  * callback on socket setup
  */
 agent.onConnection = () => {
-    agent.turn_value = turn
     agent.socketSend('move', `${x} ${y}`)
 }
