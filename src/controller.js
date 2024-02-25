@@ -74,8 +74,10 @@ class Controller {
         return angle
     }
 
-    addGoTo(target, isBall) {
-        this.type.push(new Actions.GOTO(target, isBall))
+    pushAction(...args) {
+        const [actionType, ...opts] = args
+
+        this.type.push(new Actions[actionType](opts))
     }
 
 
