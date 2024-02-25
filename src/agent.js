@@ -1,6 +1,6 @@
 const Msg = require('./msg')
 const readline = require('readline')
-const { roundToHund } = require('./math_utils')
+const { roundToHund , norma } = require('./math_utils')
 const { FLAGS } = require('./constants')
 
 class Agent {
@@ -12,6 +12,7 @@ class Agent {
         this.act = null // Действия
         this.turn_value = 0
         this.gamemode = 'before_kick_off'
+        this.objects = null
 
         this.x = null
         this.y = null
@@ -82,6 +83,7 @@ class Agent {
             })
 
             this.processObjs(p)
+            this.objects = p
         }
     }
 
@@ -94,12 +96,12 @@ class Agent {
         objInfo.y = FLAGS[tmpFlagType] ? FLAGS[tmpFlagType].y : null
 
         //Type detect
-        if (objInfo.x) objInfo.type = 'flag'
-        if (tmpFlagType === 'b') objInfo.type = 'ball'
+        if (objInfo.x) objInfo.type = "flag"
+        if (tmpFlagType === 'b') objInfo.type = "ball"
         if (cmd.p[0] === 'p') {
             if (cmd.p.length > 1) {
                 objInfo.team = cmd.p[1]
-                objInfo.type = objInfo.team === this.team ? 'ally' : 'enemy'
+                objInfo.type = objInfo.team === this.team ? "ally" : "enemy"
             }
             if (cmd.p.length > 2) objInfo.number = parseInt(cmd.p[2])
             objInfo.goalie = cmd.p.length > 3
@@ -157,11 +159,11 @@ class Agent {
         minError = null
         let bestZeroVec = null
         for (let flag of flags) {
-            let zeroVec = this.rotate(this.norma(flag), flag.direction)
+            let zeroVec = this.rotate(norma(flag, this), flag.direction)
             let error = 0
 
             flags.forEach(f => {
-                let fVec = this.norma(f)
+                let fVec = norma(f, this)
                 let estimated = Math.acos(zeroVec.x * fVec.x + zeroVec.y * fVec.y)
                 error = Math.max(Math.abs(estimated - flag.direction * Math.PI / 180), error)
             })
@@ -180,22 +182,11 @@ class Agent {
             let vec = this.rotate(bestZeroVec, -obj.direction)
             obj.x = roundToHund(this.x + vec.x * obj.distance)
             obj.y = -roundToHund(this.y + vec.y * obj.distance)
-            if (obj.type === 'enemy')
-                console.log('Enemy: ' + obj.x + ' ' + obj.y)
+            // if (obj.type === 'enemy')
+            //     console.log('Enemy: ' + obj.x + ' ' + obj.y)
         }
         this.y *= -1
-        console.log(`Player ${this.id}: ` + this.x + ' ' + this.y)
-    }
-
-    norma(flag) {
-        let v = {
-            x: flag.x - this.x,
-            y: flag.y - this.y,
-        }
-        let len = Math.sqrt(v.x ** 2 + v.y ** 2)
-        v.x /= len
-        v.y /= len
-        return v
+        // console.log(`Player ${this.id}: ` + this.x + ' ' + this.y)
     }
 
     rotate(v, objDir) {

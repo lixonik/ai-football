@@ -28,6 +28,7 @@ module.exports = {
         flt: { x: -52.5, y: 34 }, fct: { x: 0, y: 34 },
         frt: { x: 52.5, y: 34 }, flb: { x: -52.5, y: -34 },
         fcb: { x: 0, y: -34 }, frb: { x: 52.5, y: -34 },
+        
         distance(p1, p2) {
             return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2)
         },
