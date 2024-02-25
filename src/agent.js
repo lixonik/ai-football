@@ -5,6 +5,7 @@ const { FLAGS } = require('./constants')
 
 class Agent {
     constructor(teamName, options) {
+        this.connected = false
         this.options = options
         this.team = teamName
         this.side = 'l' // По умолчанию - левая половина поля
@@ -13,9 +14,10 @@ class Agent {
         this.turn_value = 0
         this.gamemode = 'before_kick_off'
 
-        const turn = options.params[2]
-
-        this.turn_value = parseInt(turn)
+        this.x = null
+        this.y = null
+        
+        this.onConnection = () => {}
 
         this.rl = readline.createInterface({ // Чтение консоли
             input: process.stdin,
@@ -33,6 +35,11 @@ class Agent {
     }
 
     msgGot(msg) { // Получение сообщения
+        if (!this.connected) {
+            this.connected = true;
+            this.onConnection();
+            return
+        }
         let data = msg.toString('utf8') // Приведение к строке
         this.processMsg(data) // Разбор сообщения
         this.sendCmd() // Отправка команды
@@ -61,20 +68,24 @@ class Agent {
 
     initAgent(p) {
         if (p[0] === 'r') this.side = 'r' // Правая половина поля
-        else this.side = 'l'    // Левая половина поля
+        // else this.side = 'l'    // Левая половина поля
+        console.log(p[1])
         if (p[1]) this.id = p[1] // id игрока
     }
 
     analyzeEnv(msg, cmd, p) { // Анализ сообщения
+        console.log(cmd)
         if (this.turn_value !== 0) this.act = { n: 'turn', v: this.turn_value }
 
-        if (cmd !== 'see') return
+        {
+            if (cmd !== 'see') return
 
-        p.forEach(item => {
-            if (typeof (item) == 'object') this.parseObjInfo(item)
-        })
+            p.forEach(item => {
+                if (typeof (item) == 'object') this.parseObjInfo(item)
+            })
 
-        this.processObjs(p)
+            this.processObjs(p)
+        }
     }
 
     parseObjInfo(objInfo) {
@@ -225,7 +236,7 @@ class Agent {
             y: f1.y + (xt * sin_b + yt * cos_b) * d1,
         }
 
-        console.log(`location: ${location.x} ${location.y}`)
+        // console.log(`location: ${location.x} ${location.y}`)
 
         return location
     }

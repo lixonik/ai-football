@@ -16,5 +16,10 @@ let teamName = 'ibapro'
 let agent = new Agent(teamName, program.opts())
 require('./socket')(agent, teamName, VERSION)
 
-const [x, y] = [program.opts().params[0], program.opts().params[1]]
-agent.socketSend('move', `${x} ${y}`)
+const [x, y, turn] = program.opts().params
+
+
+agent.onConnection = () => {
+    agent.turn_value = turn
+    agent.socketSend('move', `${x} ${y}`)
+}
