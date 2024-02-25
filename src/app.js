@@ -1,25 +1,24 @@
-const { Command } = require('commander');
+const { Command } = require('commander')
 const Agent = require('./agent')
 
-const program = new Command();
+const program = new Command()
 
 program
-    .option('-p, --params <params...>', 'Agent params [x, y, turn]')
-    .option('-t, --team <team>', 'Agent params [x, y, turn]')
-
-program.parse()
-
-// console.log(program.opts())
+    .option('-p, --params <params...>', 'Agent params [x, y, turn]: number[]')
+    .option('-t, --team <team>', 'Team name: string')
+    .parse()
 
 const VERSION = 7
-const OURTEAM = "IBAPRO"
+const OURTEAM = 'IBAPRO'
 
-let teamName = program.opts().team ? program.opts().team : OURTEAM;
+let teamName = program.opts().team ?? OURTEAM
 let agent = new Agent(teamName)
 require('./socket')(agent, teamName, VERSION)
 const [x, y, turn] = program.opts().params
 
-
+/**
+ * callback on socket setup
+ */
 agent.onConnection = () => {
     agent.turn_value = turn
     agent.socketSend('move', `${x} ${y}`)
