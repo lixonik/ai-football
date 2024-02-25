@@ -1,4 +1,5 @@
 const dgram = require('dgram') // Модуль для работы с UDP
+
 module.exports = function(agent, teamName, version) {
     // Создание сокета
     const socket = dgram.createSocket({
