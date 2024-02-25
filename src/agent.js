@@ -15,7 +15,7 @@ class Agent {
 
         this.x = null
         this.y = null
-        
+
         this.onConnection = () => {}
 
         this.rl = readline.createInterface({ // Чтение консоли
@@ -78,14 +78,27 @@ class Agent {
             if (cmd !== 'see') return
 
             p.forEach(item => {
-                if (typeof (item) == 'object') this.parseObjInfo(item)
+                if (typeof (item) == 'object') this.parseObjectInfo(item)
             })
 
-            this.processObjs(p)
+            this.processObjects(p)
         }
     }
 
-    parseObjInfo(objInfo) {
+    sendCmd() {
+        if (this.run) { // Игра начата
+            if (this.act) { // Есть команда от игрока
+                if (this.act.n === 'kick') // Пнуть мяч
+                    this.socketSend(this.act.n, this.act.v + ' 0')
+                else // Движение и поворот
+                    this.socketSend(this.act.n, this.act.v)
+            }
+
+            this.act = null // Сброс команды
+        }
+    }
+
+    parseObjectInfo(objInfo) {
 
         let cmd = objInfo.cmd
 
@@ -116,7 +129,7 @@ class Agent {
         objInfo.headFacingDirection = p.length >= 6 ? p[5] : null
     }
 
-    processObjs(objects) {
+    processObjects(objects) {
         let flags = objects
             .filter(obj => obj.x)
             .sort((a, b) => a.distance - b.distance)
@@ -157,11 +170,11 @@ class Agent {
         minError = null
         let bestZeroVec = null
         for (let flag of flags) {
-            let zeroVec = this.rotate(this.norma(flag), flag.direction)
+            let zeroVec = this.rotate(this.normalize(flag), flag.direction)
             let error = 0
 
             flags.forEach(f => {
-                let fVec = this.norma(f)
+                let fVec = this.normalize(f)
                 let estimated = Math.acos(zeroVec.x * fVec.x + zeroVec.y * fVec.y)
                 error = Math.max(Math.abs(estimated - flag.direction * Math.PI / 180), error)
             })
@@ -187,7 +200,7 @@ class Agent {
         console.log(`Player ${this.id}: ` + this.x + ' ' + this.y)
     }
 
-    norma(flag) {
+    normalize(flag) {
         let v = {
             x: flag.x - this.x,
             y: flag.y - this.y,
@@ -234,19 +247,6 @@ class Agent {
         }
 
         return location
-    }
-
-    sendCmd() {
-        if (this.run) { // Игра начата
-            if (this.act) { // Есть команда от игрока
-                if (this.act.n === 'kick') // Пнуть мяч
-                    this.socketSend(this.act.n, this.act.v + ' 0')
-                else // Движение и поворот
-                    this.socketSend(this.act.n, this.act.v)
-            }
-
-            this.act = null // Сброс команды
-        }
     }
 }
 
