@@ -1,5 +1,5 @@
 const Msg = require('./msg')
-const { roundToHund , norma } = require('./math_utils')
+const { roundToHund, norma } = require('./math_utils')
 const { FLAGS } = require('./constants')
 const Controller = require('./controller')
 
@@ -9,38 +9,46 @@ class Agent {
         this.team = teamName
         this.side = 'l' // По умолчанию - левая половина поля
         this.run = false // Игра начата
-        this.act = () => {} // Действия
+        this.act = () => {
+        } // Действия
         this.turn_value = 0
         this.gamemode = 'before_kick_off'
         this.objects = null
         this.zeroVector = null
-        this.id = 0;
+        this.id = 0
 
         this.x = null
         this.y = null
         this.controller = new Controller(this)
-        
-        this.onConnection = () => {}
 
-        // this.rl.on('line', (input) => { // Обработка строки из консоли
-        //     if (this.run) { // Если игра начата
-        //         // Движения вперед, вправо, влево, удар по мячу
-        //         if ('w' === input) this.act = { n: 'dash', v: 100 }
-        //         if ('d' === input) this.act = { n: 'turn', v: 20 }
-        //         if ('a' === input) this.act = { n: 'turn', v: -20 }
-        //         if ('s' === input) this.act = { n: 'kick', v: 100 }
-        //     }
-        // })
+        this.onConnection = () => {
+        }
+    }
+
+
+    /**
+     * TODO: add manual control implementation
+     * @param input
+     */
+    manualControl(input) {
+        console.log('manual')
+        // if (this.run) { // Если игра начата
+        //     // Движения вперед, вправо, влево, удар по мячу
+        //     if ('w' === input) this.act = () => { n: 'dash', v: 100 }
+        //     if ('d' === input) this.act = () => { n: 'turn', v: 20 }
+        //     if ('a' === input) this.act =() => { n: 'turn', v: -20 }
+        //     if ('s' === input) this.act = () =>{ n: 'kick', v: 100 }
+        // }
     }
 
     msgGot(msg) { // Получение сообщения
         if (!this.connected) {
-            this.connected = true;
-            this.onConnection();
+            this.connected = true
+            this.onConnection()
         }
         let data = msg.toString('utf8') // Приведение к строке
         this.processMsg(data) // Разбор сообщения
-        if (data.cmd === "see") this.sendCmd() // Отправка команды
+        if (data.cmd === 'see') this.sendCmd() // Отправка команды
     }
 
     setSocket(socket) { // Настройка сокета
@@ -94,12 +102,12 @@ class Agent {
         objInfo.y = FLAGS[tmpFlagType] ? FLAGS[tmpFlagType].y : null
 
         //Type detect
-        if (objInfo.x) objInfo.type = "flag"
-        if (tmpFlagType === 'b') objInfo.type = "ball"
+        if (objInfo.x) objInfo.type = 'flag'
+        if (tmpFlagType === 'b') objInfo.type = 'ball'
         if (cmd.p[0] === 'p') {
             if (cmd.p.length > 1) {
                 objInfo.team = cmd.p[1]
-                objInfo.type = objInfo.team === this.team ? "ally" : "enemy"
+                objInfo.type = objInfo.team === this.team ? 'ally' : 'enemy'
             }
             if (cmd.p.length > 2) objInfo.number = parseInt(cmd.p[2])
             objInfo.goalie = cmd.p.length > 3

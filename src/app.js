@@ -7,6 +7,7 @@ const program = new Command()
 program
     .option('-p, --params <params...>', 'Agent params [x, y]: number[]')
     .option('-t, --team <team>', 'Team name: string')
+    .option('-m, --manual', 'Manual control')
     .parse()
 
 const VERSION = 7
@@ -22,9 +23,7 @@ let rl = readline.createInterface({ // Чтение консоли
     output: process.stdout,
 })
 
-rl.on('line', (input) => {
-    agent.controls.parseRefereeCmd(input);
-})
+rl.on('line', (input) => program.opts().manual ? agent.manualControl(input) : agent.controller.parseRefereeCmd(input))
 
 /**
  * callback on socket setup

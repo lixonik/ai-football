@@ -100,7 +100,7 @@ class Controller {
 
     follow(object) {
         let target = this.agent.objects.find(obj => object.equals(obj))
-        if (target === null) 
+        if (target === null)
             return () => { this.turn(SEARCH_ANGLE) }
         object.target = { x: target.x, y: target.y }
         return this.goTo(object)
@@ -215,4 +215,4 @@ class Controller {
 
 }
 
-moddule.exports = Controller
+module.exports = Controller
