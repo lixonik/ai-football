@@ -1,6 +1,7 @@
 const { roundToHund, norma, do180 } = require('./math_utils')
 const { FLAGS } = require('./constants')
 const Actions = require('./Actions')
+const { isNil } = require("./utils")
 
 const DIST_BALL = 0.5
 const DIST_FLAG = 3
@@ -39,7 +40,7 @@ class Controller {
 
     getAction() {
         let action = null
-        while (action == null) {
+        while (isNil(action)) {
             action = () => {
             }
                 if (this.ballIsNear()) {
@@ -71,7 +72,7 @@ class Controller {
 
     ballIsNear() {
         let target = this.agent.objects.find(obj => obj.type === "ball")
-        if (target == null)
+        if (isNil(target))
             return false;
         let dist = FLAGS.distance(this.agent, target)
         return dist <= DIST_BALL
@@ -100,7 +101,7 @@ class Controller {
 
     follow(object) {
         let target = this.agent.objects.find(obj => object.equals(obj))
-        if (target === null)
+        if (isNil(target))
             return () => { this.turn(SEARCH_ANGLE) }
         object.target = { x: target.x, y: target.y }
         return this.goTo(object)
@@ -116,7 +117,7 @@ class Controller {
             return null
         }
 
-        if (object.isBall !== null && object.isBall) {
+        if (!isNil(object.isBall) && object.isBall) {
             if (dist > DIST_BALL * 6) {
                 if (this.ballIsNear()) {
                     return () => {

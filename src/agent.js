@@ -2,6 +2,7 @@ const Msg = require('./msg')
 const { roundToHund, norma } = require('./math_utils')
 const { FLAGS } = require('./constants')
 const Controller = require('./controller')
+const { isNil } = require("./utils")
 
 class Agent {
     constructor(teamName) {
@@ -139,7 +140,7 @@ class Agent {
         while (true) {
             let cFlags = flags.slice(i, flags.length)
             let location = this.localizeAgent(cFlags)
-            if (location == null) break
+            if (isNil(location)) break
 
             let error = 0
             for (let flag of flags) {
