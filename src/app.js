@@ -8,14 +8,13 @@ program
 
 program.parse()
 
-console.log(program.opts())
+// console.log(program.opts())
 
 
 const VERSION = 7
 let teamName = 'ibapro'
-let agent = new Agent(teamName, program.opts())
+let agent = new Agent(teamName)
 require('./socket')(agent, teamName, VERSION)
-
 const [x, y, turn] = program.opts().params
 
 

@@ -4,9 +4,8 @@ const { roundToHund } = require('./math_utils')
 const { FLAGS } = require('./constants')
 
 class Agent {
-    constructor(teamName, options) {
+    constructor(teamName) {
         this.connected = false
-        this.options = options
         this.team = teamName
         this.side = 'l' // По умолчанию - левая половина поля
         this.run = false // Игра начата
@@ -36,9 +35,9 @@ class Agent {
 
     msgGot(msg) { // Получение сообщения
         if (!this.connected) {
+            console.log("connected")
             this.connected = true;
             this.onConnection();
-            return
         }
         let data = msg.toString('utf8') // Приведение к строке
         this.processMsg(data) // Разбор сообщения
@@ -69,14 +68,12 @@ class Agent {
     initAgent(p) {
         if (p[0] === 'r') this.side = 'r' // Правая половина поля
         // else this.side = 'l'    // Левая половина поля
-        console.log(p[1])
         if (p[1]) this.id = p[1] // id игрока
     }
 
     analyzeEnv(msg, cmd, p) { // Анализ сообщения
-        console.log(cmd)
         if (this.turn_value !== 0) this.act = { n: 'turn', v: this.turn_value }
-
+        
         {
             if (cmd !== 'see') return
 
