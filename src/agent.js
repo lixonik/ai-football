@@ -1,7 +1,7 @@
 const Msg = require('./msg')
-const readline = require('readline')
 const { roundToHund , norma } = require('./math_utils')
 const { FLAGS } = require('./constants')
+const Controller = require('./controller')
 
 class Agent {
     constructor(teamName) {
@@ -9,40 +9,38 @@ class Agent {
         this.team = teamName
         this.side = 'l' // По умолчанию - левая половина поля
         this.run = false // Игра начата
-        this.act = null // Действия
+        this.act = () => {} // Действия
         this.turn_value = 0
         this.gamemode = 'before_kick_off'
         this.objects = null
+        this.zeroVector = null
+        this.id = 0;
 
         this.x = null
         this.y = null
+        this.controller = new Controller(this)
         
         this.onConnection = () => {}
 
-        this.rl = readline.createInterface({ // Чтение консоли
-            input: process.stdin,
-            output: process.stdout,
-        })
-        this.rl.on('line', (input) => { // Обработка строки из консоли
-            if (this.run) { // Если игра начата
-                // Движения вперед, вправо, влево, удар по мячу
-                if ('w' === input) this.act = { n: 'dash', v: 100 }
-                if ('d' === input) this.act = { n: 'turn', v: 20 }
-                if ('a' === input) this.act = { n: 'turn', v: -20 }
-                if ('s' === input) this.act = { n: 'kick', v: 100 }
-            }
-        })
+        // this.rl.on('line', (input) => { // Обработка строки из консоли
+        //     if (this.run) { // Если игра начата
+        //         // Движения вперед, вправо, влево, удар по мячу
+        //         if ('w' === input) this.act = { n: 'dash', v: 100 }
+        //         if ('d' === input) this.act = { n: 'turn', v: 20 }
+        //         if ('a' === input) this.act = { n: 'turn', v: -20 }
+        //         if ('s' === input) this.act = { n: 'kick', v: 100 }
+        //     }
+        // })
     }
 
     msgGot(msg) { // Получение сообщения
         if (!this.connected) {
-            console.log("connected")
             this.connected = true;
             this.onConnection();
         }
         let data = msg.toString('utf8') // Приведение к строке
         this.processMsg(data) // Разбор сообщения
-        this.sendCmd() // Отправка команды
+        if (data.cmd === "see") this.sendCmd() // Отправка команды
     }
 
     setSocket(socket) { // Настройка сокета
@@ -157,7 +155,6 @@ class Agent {
             return null
         }
         minError = null
-        let bestZeroVec = null
         for (let flag of flags) {
             let zeroVec = this.rotate(norma(flag, this), flag.direction)
             let error = 0
@@ -170,7 +167,7 @@ class Agent {
 
             if (!minError || minError > error) {
                 minError = error
-                bestZeroVec = zeroVec
+                this.zeroVector = zeroVec
             }
         }
 
@@ -179,14 +176,11 @@ class Agent {
             if (typeof (obj) != 'object') {
                 continue
             }
-            let vec = this.rotate(bestZeroVec, -obj.direction)
+            let vec = this.rotate(this.zeroVector, -obj.direction)
             obj.x = roundToHund(this.x + vec.x * obj.distance)
             obj.y = -roundToHund(this.y + vec.y * obj.distance)
-            // if (obj.type === 'enemy')
-            //     console.log('Enemy: ' + obj.x + ' ' + obj.y)
         }
         this.y *= -1
-        // console.log(`Player ${this.id}: ` + this.x + ' ' + this.y)
     }
 
     rotate(v, objDir) {
@@ -228,16 +222,10 @@ class Agent {
     }
 
     sendCmd() {
-        if (this.run) { // Игра начата
-            if (this.act) { // Есть команда от игрока
-                if (this.act.n === 'kick') // Пнуть мяч
-                    this.socketSend(this.act.n, this.act.v + ' 0')
-                else // Движение и поворот
-                    this.socketSend(this.act.n, this.act.v)
-            }
-
-            this.act = null // Сброс команды
-        }
+        if (!this.run) // Игра начата
+            return
+        this.act = this.controller.getAction()
+        this.act()
     }
 }
 

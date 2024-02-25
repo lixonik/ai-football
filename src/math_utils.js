@@ -14,7 +14,7 @@ module.exports = {
         return v
     },
 
-    Do180(angle) {
+    do180(angle) {
         while (angle > 180 || angle < -180)
         {
             if (angle > 180)

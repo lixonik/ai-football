@@ -1,11 +1,15 @@
-const { roundToHund, norma, Do180 } = require('./math_utils')
+const { roundToHund, norma, do180 } = require('./math_utils')
 const { FLAGS } = require('./constants')
 const Actions = require('./Actions')
 
 const DIST_BALL = 0.5
 const DIST_FLAG = 3
+const FOLLOW_ANGLE = 10
 const MAX_GOAL_DIST = 20
 const KICK_FORCE = 100
+const DRIBBLE_FORCE = 15
+const SEARCH_ANGLE = 90
+const SPEED = 100
 
 class Controller {
     constructor(agent) {
@@ -34,7 +38,7 @@ class Controller {
     }
 
     getAction() {
-        let action
+        let action = null
         while (action == null) {
             action = () => {
             }
@@ -53,9 +57,14 @@ class Controller {
                     break
 
                 switch (this.type[0].name) {
-
+                    case "GOTO":
+                        action = this.goTo(this.type[0])
+                        break
+                    case "FOLLOW":
+                    case "REACH":
+                        action = this.follow(this.type[0])
+                        break
                 }
-
         }
         return action
     }
@@ -70,7 +79,7 @@ class Controller {
 
     getAngle(pos, dir, targetPos) {
         let v = norma(pos, targetPos)
-        let angle = Do180((-Math.atan2(v.y, v.x) - Math.atan2(dir.y, dir.x)) * 180 / Math.PI)
+        let angle = do180((-Math.atan2(v.y, v.x) - Math.atan2(dir.y, dir.x)) * 180 / Math.PI)
         return angle
     }
 
@@ -80,6 +89,129 @@ class Controller {
         this.type.push(new Actions[actionType](opts))
     }
 
+    clearType() {
+        this.type = []
+    }
+
+    stop() {
+        if (this.type.length !== 0)
+            this.type.shift()
+    }
+
+    follow(object) {
+        let target = this.agent.objects.find(obj => object.equals(obj))
+        if (target === null) 
+            return () => { this.turn(SEARCH_ANGLE) }
+        object.target = { x: target.x, y: target.y }
+        return this.goTo(object)
+    }
+
+    goTo(object) {
+        let dist = FLAGS.distance(this.agent, object.target);
+
+        let angle = this.getAngle(this.agent, this.agent.zeroVector, object.target)
+
+        if (dist <= DIST_BALL && object.name !== "FOLLOW") {
+            this.type.shift()
+            return null
+        }
+
+        if (object.isBall !== null && object.isBall) {
+            if (dist > DIST_BALL * 6) {
+                if (this.ballIsNear()) {
+                    return () => {
+                        this.kick(DRIBBLE_FORCE, -angle)
+                    }
+                } else {
+                    this.type.unshift(new Actions.REACHFOLLOW("ball", false, false))
+                    return null
+                }
+            } else {
+                this.type.shift();
+                return null
+            }
+        }
+
+        if (Math.abs(angle) > FOLLOW_ANGLE) {
+            return () => {
+                this.turn(-angle);
+            }
+        }
+        if (dist > DIST_BALL) {
+            return () => {
+                this.dash(SPEED);
+            }
+        }
+        return () => {
+        }
+    }
+
+    parseRefereeCmd(commands) {
+        let lines = commands.split(';')
+        for (let line of lines) {
+            line = line.trim()
+            if (line.startsWith("remember ")) {
+                line = line.slice(9, line.length);
+            } else {
+                this.type = []
+            }
+
+            if (line.startsWith("goto")) {
+                let params = line.split(' ');
+                if (params.length < 4) {
+                    console.error("Incorrect command!")
+                    continue
+                }
+                let vx = parseInt(params[1]);
+                let vy = parseInt(params[2]);
+                if (isNaN(vx) || isNaN(vy) ||
+                    vx > 57 || vx < -57 || vy > 39 || vy < -39 ||
+                    params[3] !== "true" && params[3] !== "false") {
+                    console.error("Incorrect values!")
+                    continue
+                }
+                this.pushAction(Actions.GOTO, {x: vx, y: vy}, params[3] === "true")
+                continue
+            }
+            if (line.startsWith("reach")) {
+                let params = line.split(' ');
+                if (params.length === 2 && params[1].toLowerCase() === "ball") {
+                    this.pushAction(Actions.REACHFOLLOW, "ball", false)
+                } else if (params.length === 3) {
+                    let number = parseInt(params[2]);
+                    if (isNaN(number)) {
+                        console.error("Incorrect values!")
+                        continue
+                    }
+                    this.pushAction(Actions.REACHFOLLOW, "player", false, params[1], number)
+                } else console.error("Incorrect command!")
+                continue
+            }
+            if (line.startsWith("follow")) {
+                let params = line.split(' ');
+                if (params.length === 2 && params[1].toLowerCase() === "ball") {
+                    this.pushAction(Actions.REACHFOLLOW, "ball", true)
+                } else if (params.length === 3) {
+                    let number = parseInt(params[2]);
+                    if (isNaN(number)) {
+                        console.error("Incorrect values!")
+                        continue
+                    }
+                    this.pushAction(Actions.REACHFOLLOW, "player", true, params[1], number)
+                } else console.error("Incorrect command!")
+                continue
+            }
+
+            if (line.startsWith("stop")) {
+                this.stop()
+                continue
+            }
+            if (line.startsWith("clear")) {
+                this.clear()
+                continue
+            }
+        }
+    }
 
 }
 
