@@ -22,12 +22,9 @@ class Controller {
         this.agent.socketSend('move', `${x} ${y}`)
     }
 
-    kick(force, angle) {
+    kick(force, angle = 0) {
+        console.log(force, angle)
         this.agent.socketSend('kick', `${force} ${angle}`)
-    }
-
-    kick(force) {
-        this.agent.socketSend('kick', `${force}`)
     }
 
     dash(velocity) {
@@ -46,7 +43,7 @@ class Controller {
                 if (this.ballIsNear()) {
                     let enemyGates = this.agent.side === "l" ? FLAGS.gr : FLAGS.gl
                     if (FLAGS.distance(this.agent, enemyGates) <= MAX_GOAL_DIST) {
-                        let angle = 0
+                        let angle = this.getAngle(this.agent, this.agent.zeroVector, enemyGates)
                         action = () => {
                             this.kick(KICK_FORCE, -angle)
                         }
@@ -73,7 +70,7 @@ class Controller {
     ballIsNear() {
         let target = this.agent.objects.find(obj => obj.type === "ball")
         if (isNil(target))
-            return false;
+            return false
         let dist = FLAGS.distance(this.agent, target)
         return dist <= DIST_BALL
     }
@@ -86,9 +83,7 @@ class Controller {
 
     pushAction(...args) {
         const [actionType, ...opts] = args
-        // console.log(...opts)
         this.type.push(new actionType(...opts))
-        // console.log(this.type)
     }
 
     clearType() {
@@ -160,7 +155,6 @@ class Controller {
 
             if (line.startsWith("goto")) {
                 let params = line.split(' ');
-                // console.log(params.length, params)
                 if (params.length < 4) {
                     console.error("Incorrect command!")
                     continue

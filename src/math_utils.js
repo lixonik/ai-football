@@ -5,8 +5,8 @@ module.exports = {
 
     norma(p1, p2) {
         let v = {
-            x: p1.x - p2.x,
-            y: p1.y - p2.y,
+            x: p2.x - p1.x,
+            y: p2.y - p1.y,
         }
         let len = Math.sqrt(v.x ** 2 + v.y ** 2)
         v.x /= len
