@@ -1,14 +1,14 @@
-const { roundToHund, norma, do180 } = require('./math_utils')
+const { roundToHund, normalize, do180 } = require('./math_utils')
 const { FLAGS } = require('./constants')
 const Actions = require('./Actions')
 const { isNil } = require("./utils")
 
 const DIST_BALL = 0.5
 const DIST_FLAG = 3
-const FOLLOW_ANGLE = 15
-const MAX_GOAL_DIST = 20
-const KICK_FORCE = 100
-const DRIBBLE_FORCE = 15
+const FOLLOW_ANGLE = 20
+const MAX_GOAL_DIST = 35
+const KICK_FORCE = 125
+const DRIBBLE_FORCE = 20
 const SEARCH_ANGLE = 90
 const SPEED = 100
 
@@ -23,7 +23,6 @@ class Controller {
     }
 
     kick(force, angle = 0) {
-        console.log(force, angle)
         this.agent.socketSend('kick', `${force} ${angle}`)
     }
 
@@ -76,7 +75,7 @@ class Controller {
     }
 
     getAngle(pos, dir, targetPos) {
-        let v = norma(pos, targetPos)
+        let v = normalize(pos, targetPos)
         let angle = do180((-Math.atan2(v.y, v.x) - Math.atan2(dir.y, dir.x)) * 180 / Math.PI)
         return angle
     }

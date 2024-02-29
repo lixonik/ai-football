@@ -1,5 +1,5 @@
 const Msg = require('./msg')
-const { roundToHund, norma } = require('./math_utils')
+const { roundToHund, normalize } = require('./math_utils')
 const { FLAGS } = require('./constants')
 const Controller = require('./controller')
 const { isNil } = require("./utils")
@@ -163,11 +163,11 @@ class Agent {
         }
         minError = null
         for (let flag of flags) {
-            let zeroVec = this.rotate(norma(flag, this), flag.direction)
+            let zeroVec = this.rotate(normalize(this, flag), flag.direction)
             let error = 0
 
             flags.forEach(f => {
-                let fVec = norma(f, this)
+                let fVec = normalize(this, f)
                 let estimated = Math.acos(zeroVec.x * fVec.x + zeroVec.y * fVec.y)
                 error = Math.max(Math.abs(estimated - flag.direction * Math.PI / 180), error)
             })

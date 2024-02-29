@@ -3,7 +3,7 @@ module.exports = {
         return Math.round(num * 100) / 100.0 // rounding to hundredths
     },
 
-    norma(p1, p2) {
+    normalize(p1, p2) {
         let v = {
             x: p2.x - p1.x,
             y: p2.y - p1.y,
