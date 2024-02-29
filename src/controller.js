@@ -146,7 +146,7 @@ class Controller {
         let lines = commands.split(';')
         for (let line of lines) {
             line = line.trim()
-            if (line.startsWith("remember ")) {
+            if (line.startsWith("next ")) {
                 line = line.slice(9, line.length);
             } else {
                 this.type = []
