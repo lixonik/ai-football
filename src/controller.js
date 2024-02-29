@@ -147,7 +147,7 @@ class Controller {
         for (let line of lines) {
             line = line.trim()
             if (line.startsWith("next ")) {
-                line = line.slice(9, line.length);
+                line = line.slice(5, line.length);
             } else {
                 this.type = []
             }
