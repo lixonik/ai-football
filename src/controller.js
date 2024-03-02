@@ -1,6 +1,6 @@
 const { roundToHund, normalize, do180 } = require("./math_utils")
 const { FLAGS } = require("./constants")
-const Actions = require("./Actions")
+const actions = require("./actions")
 const { isNil, isDefined } = require("./utils")
 
 const DIST_BALL = 0.5
@@ -121,7 +121,7 @@ class Controller {
 						this.kick(DRIBBLE_FORCE, -angle)
 					}
 				} else {
-					this.type.unshift(new Actions.REACHFOLLOW("ball", false, false))
+					this.type.unshift(new actions.REACHFOLLOW("ball", false, false))
 					return null
 				}
 			} else {
@@ -173,34 +173,34 @@ class Controller {
 					console.error("Incorrect values!")
 					continue
 				}
-				this.pushAction(Actions.GOTO, { x: vx, y: vy }, params[3] === "true" || params[2] === "true")
+				this.pushAction(actions.GOTO, { x: vx, y: vy }, params[3] === "true" || params[2] === "true")
 				continue
 			}
 			if (line.startsWith("reach")) {
 				let params = line.split(" ")
 				if (params.length === 2 && params[1].toLowerCase() === "ball") {
-					this.pushAction(Actions.REACHFOLLOW, "ball", false)
+					this.pushAction(actions.REACHFOLLOW, "ball", false)
 				} else if (params.length === 3) {
 					let number = parseInt(params[2])
 					if (isNaN(number)) {
 						console.error("Incorrect values!")
 						continue
 					}
-					this.pushAction(Actions.REACHFOLLOW, "player", false, params[1], number)
+					this.pushAction(actions.REACHFOLLOW, "player", false, params[1], number)
 				} else console.error("Incorrect command!")
 				continue
 			}
 			if (line.startsWith("follow")) {
 				let params = line.split(" ")
 				if (params.length === 2 && params[1].toLowerCase() === "ball") {
-					this.pushAction(Actions.REACHFOLLOW, "ball", true)
+					this.pushAction(actions.REACHFOLLOW, "ball", true)
 				} else if (params.length === 3) {
 					let number = parseInt(params[2])
 					if (isNaN(number)) {
 						console.error("Incorrect values!")
 						continue
 					}
-					this.pushAction(Actions.REACHFOLLOW, "player", true, params[1], number)
+					this.pushAction(actions.REACHFOLLOW, "player", true, params[1], number)
 				} else console.error("Incorrect command!")
 				continue
 			}
