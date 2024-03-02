@@ -1,7 +1,7 @@
 const { roundToHund, normalize, do180 } = require('./math_utils')
 const { FLAGS } = require('./constants')
 const Actions = require('./Actions')
-const { isNil } = require("./utils")
+const { isNil, isDefined } = require("./utils")
 
 const DIST_BALL = 0.5
 const DIST_FLAG = 3
@@ -112,7 +112,7 @@ class Controller {
             return null
         }
 
-        if (!isNil(object.isBall) && object.isBall) {
+        if (isDefined(object.isBall) && object.isBall) {
             if (dist > DIST_FLAG) {
                 if (this.ballIsNear()) {
                     return () => {
