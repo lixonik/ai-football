@@ -1,11 +1,13 @@
 const Msg = require('./msg')
-const { roundToHund, normalize } = require('./math_utils')
+const { roundToHund, normalize, do180 } = require('./math_utils')
 const { FLAGS } = require('./constants')
 const Controller = require('./controller')
-const { isNil } = require("./utils")
+const { isNil, isDefined } = require("./utils")
+
+const { Goalie, Substitute, Forward } = require('./Roles')
 
 class Agent {
-    constructor(teamName) {
+    constructor(teamName, role) {
         this.connected = false
         this.team = teamName
         this.side = 'l' // По умолчанию - левая половина поля
@@ -20,6 +22,14 @@ class Agent {
         this.x = null
         this.y = null
         this.controller = new Controller(this)
+
+        if (role === "goalie")
+        {
+            this.role = new Goalie(this)
+        } else {
+            console.log(role)
+            this.role = null
+        }
 
         this.onConnection = () => {
         }
@@ -63,19 +73,33 @@ class Agent {
         if (!data) throw new Error('Parse error\n' + msg)
         // Первое (hear) - начало игры
         if (data.cmd === 'hear') {
-            if (data.p[1] === 'referee')
+            let info = data.p[2].replace(/"/g, '')
+            if (info.startsWith(this.team) && data.p[1] !== "self"){
+                this.role.forwardId = info.split("x")[1]
+            }
+            if (data.p[1] === 'referee') {
                 this.gamemode = data.p[2]
+                if (this.role.name === "forward")
+                    this.controller.say(this.team+"x"+this.id)
+            }
             if(this.gamemode === "play_on")
                 this.run = true
         }
         if (data.cmd === 'init') this.initAgent(data.p)//Инициализация
         this.analyzeEnv(data.msg, data.cmd, data.p) // Обработка
-        if (data.cmd === "see") this.sendCmd() // Отправка команды
+        if (data.cmd === "see") {
+            if (isNil(this.role)) {
+                let countPlayer = this.objects.filter((p) => p.team === this.team)
+                if (countPlayer.length === 0) this.role = new Forward(this)
+                else this.role = new Substitute(this)
+            } 
+            this.sendCmd() // Отправка команды
+        }
     }
 
     initAgent(p) {
         if (p[0] === 'r') this.side = 'r' // Правая половина поля
-        // else this.side = 'l'    // Левая половина поля
+        if (p[0] === 'l') this.side = 'l'    // Левая половина поля
         if (p[1]) this.id = p[1] // id игрока
     }
 
@@ -105,8 +129,9 @@ class Agent {
         if (tmpFlagType === 'b') objInfo.type = 'ball'
         if (cmd.p[0] === 'p') {
             if (cmd.p.length > 1) {
-                objInfo.team = cmd.p[1]
-                objInfo.type = objInfo.team === this.team ? 'ally' : 'enemy'
+                objInfo.team = cmd.p[1].replace(/"/g, '')
+                objInfo.type = "player"
+                objInfo.ally = objInfo.team === this.team
             }
             if (cmd.p.length > 2) objInfo.number = parseInt(cmd.p[2])
             objInfo.goalie = cmd.p.length > 3
@@ -231,7 +256,7 @@ class Agent {
     sendCmd() {
         if (!this.run) // Игра не начата
             return
-        this.act = this.controller.getAction()
+        this.act = this.role.update()
         this.act()
     }
 }

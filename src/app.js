@@ -7,23 +7,24 @@ const program = new Command()
 program
     .option('-p, --params <params...>', 'Agent params [x, y]: number[]')
     .option('-t, --team <team>', 'Team name: string')
-    .option('-m, --manual', 'Manual control')
+    .option('-r, --role <role>', 'Player role')
     .parse()
 
 const VERSION = 7
 const OURTEAM = 'IBAPRO'
 
 let teamName = program.opts().team ?? OURTEAM
-let agent = new Agent(teamName)
-require('./socket')(agent, teamName, VERSION)
+let role = program.opts().role ?? ""
+let agent = new Agent(teamName, role)
+require('./socket')(agent, teamName, VERSION, role === "goalie" ? "(goalie)" : "")
 const [x, y] = program.opts().params
 
-let rl = readline.createInterface({ // Чтение консоли
-    input: process.stdin,
-    output: process.stdout,
-})
+// let rl = readline.createInterface({ // Чтение консоли
+//     input: process.stdin,
+//     output: process.stdout,
+// })
 
-rl.on('line', (input) => program.opts().manual ? agent.manualControl(input) : agent.controller.parseRefereeCmd(input))
+// rl.on('line', (input) => program.opts().manual ? agent.manualControl(input) : agent.controller.parseRefereeCmd(input))
 
 /**
  * callback on socket setup
