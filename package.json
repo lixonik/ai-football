@@ -4,8 +4,15 @@
   "description": "",
   "main": "./src/app.js",
   "scripts": {
-    "start": "node ./src/app.js"
+    "start": "node ./src/app.js",
+    "param": "node ./src/app.js -p -15 0 20",
+    "enemy": "node ./src/app.js -p -15 0 20 -t teamB",
+    "task1": "node ./src/app.js -p -15 0",
+    "manual": "node ./src/app.js -p -15 0 20 -m"
   },
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^12.0.0"
+  }
 }
