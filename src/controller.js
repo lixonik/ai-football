@@ -163,7 +163,7 @@ class Controller {
 					continue
 				} else if (params[1] in FLAGS) {
 					x = FLAGS[params[1]].x
-					y = FLAGS[params[1]].y
+					y = -FLAGS[params[1]].y
 				}
 				let vx = x ?? parseInt(params[1])
 				let vy = y ?? parseInt(params[2])
