@@ -1,6 +1,6 @@
 const { roundToHund, normalize, do180 } = require('./math_utils')
 const { FLAGS } = require('./constants')
-const Actions = require('./actions')
+const actions = require('./actions')
 const { isNil, isDefined } = require("./utils")
 
 const DIST_BALL = 0.5
@@ -39,7 +39,7 @@ class Player {
         let angle = this.getAngle(this.agent, this.agent.zeroVector, target)
 
 
-        if (isBall) 
+        if (isBall)
             return () => { this.controller.kick(DRIBBLE_FORCE, -angle) }
 
         if (Math.abs(angle) > FOLLOW_ANGLE) {
