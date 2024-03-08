@@ -43,7 +43,7 @@ class SoundManager {
         if (arr[0] !== this.agent.team.charAt(0)) {
             return
         }
-        console.log(this.msg)
+        // console.log(this.msg)
         let to = -1
         switch (arr[1]) {
             case Messages.goTo:
@@ -70,7 +70,7 @@ class SoundManager {
                 if (to === this.agent.id) {
                     let xPlayer = arr[4] === '-' ? (-1) * parseInt(arr[5] + arr[6]) : parseInt(arr[5] + arr[6])
                     let yPlayer = arr[7] === '-' ? (-1) * parseInt(arr[8] + arr[9]) : parseInt(arr[8] + arr[9])
-                    this.agent.role.getBall = {x: xPlayer, y: yPlayer}
+                    this.agent.role.getBallFrom = {x: xPlayer, y: yPlayer}
                 }
                 break
             case Messages.sendMe:
@@ -82,7 +82,7 @@ class SoundManager {
                 }
                 break
             case Messages.go:
-                this.agent.role.motion = true;
+                this.agent.role.motion = true
                 break
         }
     }

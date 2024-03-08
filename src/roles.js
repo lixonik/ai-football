@@ -249,7 +249,7 @@ class Forward extends Player {
         this.ball = {x: 0, y: 0}
         this.state = "root"
         this.action = null
-        this.targets = FLAGS.fplc
+        this.target = FLAGS.fplc
         this.end = false
         this.ready = false
         this.throw = false
@@ -275,13 +275,13 @@ class Forward extends Player {
                     if (isDefined(this.target))
                         this.action = "moveToTarget"
                     else
-                        this.action = "ballPerformance"
+                        this.state = "ballPerformance"
                     break
                 case "ballPerformance":
                     if (isNil(this.ball))
                         this.action = "searching"
                     else
-                        this.action = "moveToBall"
+                        this.state = "moveToBall"
                     break
                 case "moveToBall":
                     if (FLAGS.distance(this.agent, this.ball) > DIST_BALL)
@@ -311,6 +311,8 @@ class Forward extends Player {
             case "throw":
                 return this.throwB()
             case "wait":
+            // default:
+                // console.log(this.action)
                 return () => {}
         }
     }
@@ -328,18 +330,19 @@ class Forward extends Player {
         }
     }
 
-    gotoTarget() {
-        if (FLAGS.distance(this.agent, this.target) <= DIST_BALL * 5 && this.targetNum < 3) {
+    moveToTarget() {
+        if (FLAGS.distance(this.agent, this.target) <= DIST_BALL) {
             this.target = null
+            return () => {}
         }
-        return this.goTo(target, SPEED)
+        return this.goTo(this.target, SPEED)
     }
 
     givePass() {
         let destination = {x: 30, y: -8}
         let angle = this.getAngle(this.agent, this.agent.zeroVector, destination)
         if (this.ready) {
-            this.controller.SayGo()
+            this.controller.sayGo()
             this.end = true;
             return () => {
                 this.controller.kick(FLAGS.distance(this.agent, destination) * FORCE_PER_DISTANCE, -angle)
@@ -379,7 +382,10 @@ class Substitute extends Player {
         this.state = "root"
         this.action = null
 
-        this.forward = this.agent.objects.find(el => el.team === this.agent.team && el.number == this.forwardId)
+        this.ball = this.agent.objects.find(el => el.type === "ball");
+        if (isDefined(this.ball)) {
+            this.ballMemory = this.ball;
+        }
 
         this.gates = this.agent.side === "r" ? FLAGS.gl : FLAGS.gr
         while (isNil(this.action)) {
@@ -392,13 +398,13 @@ class Substitute extends Player {
                     break
                 case "waitBall":
                     if (isDefined(this.ball) || this.seeBall) {
-                        this.seeBall = true;
+                        this.seeBall = true
                         this.state = "seeBall"
                     } else {
-                        this.isBall = false;
+                        this.isBall = false
                         this.action = "moveToTarget"
                     }
-                    break;
+                    break
                 case "seeBall":
                     if (isNil(this.ball)) {
                         this.action = "findBall"
@@ -417,8 +423,8 @@ class Substitute extends Player {
                     break
                 case "gatesPerformance":
                     if (FLAGS.distance(this.agent, this.gates) > MAX_GOAL_DIST) {
-                        this.target = this.gates;
-                        this.isBall = true;
+                        this.target = this.gates
+                        this.isBall = true
                         this.action = "moveToTarget"
                     } else
                         this.action = "performGoal"
@@ -442,12 +448,12 @@ class Substitute extends Player {
 
     moveToTarget() {
         if (FLAGS.distance(this.agent, this.target) < DIST_BALL) {
-            this.cur++;
+            this.cur++
             if (this.cur < 2) {
                 this.target = this.targets[this.cur]
             } else {
                 this.target = this.gates
-                this.seeBall = true;
+                this.seeBall = true
             }
             return () => {
             }
@@ -491,7 +497,7 @@ class Substitute extends Player {
     }
 
     findBall() {
-        if (isNil(this.ballMemory)) {
+        if (isDefined(this.ballMemory)) {
             let angle = this.getAngle(this.agent, this.agent.zeroVector, this.ballMemory)
             this.ballMemory = null;
             return () => {

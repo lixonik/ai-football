@@ -29,7 +29,6 @@ class Agent {
         {
             this.role = new Goalie(this)
         } else {
-            // console.log(role)
             this.role = null
         }
 
