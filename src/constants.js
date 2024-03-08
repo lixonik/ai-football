@@ -32,5 +32,13 @@ module.exports = {
         distance(p1, p2) {
             return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2)
         },
+    },
+    Messages: {
+            switchForward: "a",// "a?id" team(1)+cmd(1)+newAttacker(2)
+            coverMe: "b",// "b?0/1/2" team(1)+cmd(1)+player(2)+type(1)
+            sendMe: "c", // "c" team(1)+cmd(1)+playerName(2)+x(3)+y(3)
+            goTo: "d", // "d?x?y" team(1)+cmd(1)+player(2)+x(3)+y(3)
+            givePass: "e", // "e?x?y" team(1)+cmd(1)+player(2)+x(3)+y(3)
+            go: "g"
     }
 }

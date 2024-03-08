@@ -5,6 +5,7 @@ const Controller = require('./controller')
 const { isNil, isDefined } = require("./utils")
 
 const { Goalie, Substitute, Forward } = require('./Roles')
+const SoundManager = require('./soundManager')
 
 class Agent {
     constructor(teamName, role) {
@@ -22,12 +23,13 @@ class Agent {
         this.x = null
         this.y = null
         this.controller = new Controller(this)
+        this.soundManager = new SoundManager(this)
 
         if (role === "goalie")
         {
             this.role = new Goalie(this)
         } else {
-            console.log(role)
+            // console.log(role)
             this.role = null
         }
 
@@ -73,17 +75,7 @@ class Agent {
         if (!data) throw new Error('Parse error\n' + msg)
         // Первое (hear) - начало игры
         if (data.cmd === 'hear') {
-            let info = data.p[2].replace(/"/g, '')
-            if (info.startsWith(this.team) && data.p[1] !== "self"){
-                this.role.forwardId = info.split("x")[1]
-            }
-            if (data.p[1] === 'referee') {
-                this.gamemode = data.p[2]
-                if (this.role.name === "forward")
-                    this.controller.say(this.team+"x"+this.id)
-            }
-            if(this.gamemode === "play_on")
-                this.run = true
+            this.soundManager.scan(data.p)
         }
         if (data.cmd === 'init') this.initAgent(data.p)//Инициализация
         this.analyzeEnv(data.msg, data.cmd, data.p) // Обработка
@@ -254,8 +246,13 @@ class Agent {
     }
 
     sendCmd() {
-        if (!this.run) // Игра не начата
+        if (!this.run) { // Игра не начата
+            if (isNil(this.marker) && this.side === "r") {
+                this.controller.turn(180)
+                this.marker = true
+            }
             return
+        }
         this.act = this.role.update()
         this.act()
     }

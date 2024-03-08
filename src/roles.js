@@ -11,13 +11,14 @@ const KICK_FORCE = 80
 const DRIBBLE_FORCE = 20
 const SEARCH_ANGLE = 90
 const SPEED = 100
+const FORCE_PER_DISTANCE = 2.3
 
 
 class Player {
     constructor(agent) {
-        this.state = ""
         this.agent = agent
         this.controller = this.agent.controller
+        this.goal = false
     }
 
     update() {
@@ -53,6 +54,7 @@ class Player {
             }
         }
         return () => {
+            this.controller.turn(-angle)
         }
     }
 
@@ -244,11 +246,13 @@ class Forward extends Player {
         super(agent)
         this.name = "forward"
         this.ballMemory = null
-        this.ball = null
+        this.ball = {x: 0, y: 0}
         this.state = "root"
         this.action = null
-        this.targets = [{x:20,y: -10}, {x:30, y:10}, {x:40, y:0}, FLAGS.gr]
-        this.targetNum = 0
+        this.targets = FLAGS.fplc
+        this.end = false
+        this.ready = false
+        this.throw = false
     }
 
     updateState() {
@@ -262,23 +266,34 @@ class Forward extends Player {
         while (isNil(this.action)) {
             switch (this.state) {
                 case "root":
+                    if (this.end)
+                        this.action = "wait"
+                    else
+                        this.state = "continued"
+                    break
+                case "continued":
+                    if (isDefined(this.target))
+                        this.action = "moveToTarget"
+                    else
+                        this.action = "ballPerformance"
+                    break
+                case "ballPerformance":
                     if (isNil(this.ball))
                         this.action = "searching"
                     else
-                        this.state = "moveToBall"
+                        this.action = "moveToBall"
                     break
                 case "moveToBall":
                     if (FLAGS.distance(this.agent, this.ball) > DIST_BALL)
                         this.action = "getBall"
                     else
-                        this.state = "gatesPerformance"
+                        this.state = "action"
                     break
-                case "gatesPerformance":
-                    if (FLAGS.distance(this.agent, this.gates) > MAX_GOAL_DIST)
-                        this.action = "gotoTarget"
+                case "action":
+                    if (this.throw)
+                        this.action = "givePass"
                     else
-                        this.action = "performGoal"
-                    break
+                        this.action = "throw"
             }
         }
     }
@@ -287,12 +302,16 @@ class Forward extends Player {
         switch (this.action) {
             case "searching":
                 return this.searching()
+            case "moveToTarget":
+                return this.moveToTarget()
             case "getBall":
                 return this.goTo(this.ball, SPEED)
-            case "gotoTarget":
-                return this.gotoTarget()
-            case "performGoal":
-                return this.performGoal()
+            case "givePass":
+                return this.givePass()
+            case "throw":
+                return this.throwB()
+            case "wait":
+                return () => {}
         }
     }
 
@@ -310,17 +329,34 @@ class Forward extends Player {
     }
 
     gotoTarget() {
-        let target = this.targets[this.targetNum]
-        if (FLAGS.distance(this.agent, target) <= DIST_BALL * 5 && this.targetNum < 3) {
-            this.targetNum++
+        if (FLAGS.distance(this.agent, this.target) <= DIST_BALL * 5 && this.targetNum < 3) {
+            this.target = null
         }
-        return this.goTo(target, SPEED, true)
+        return this.goTo(target, SPEED)
     }
 
-    performGoal() {
+    givePass() {
+        let destination = {x: 30, y: -8}
+        let angle = this.getAngle(this.agent, this.agent.zeroVector, destination)
+        if (this.ready) {
+            this.controller.SayGo()
+            this.end = true;
+            return () => {
+                this.controller.kick(FLAGS.distance(this.agent, destination) * FORCE_PER_DISTANCE, -angle)
+            }
+        } else {
+            this.ready = true;
+            return () => {
+                this.controller.turn(-angle)
+            }
+        }
+    }
+
+    throwB() {
         let angle = this.getAngle(this.agent, this.agent.zeroVector, this.gates)
+        this.throw = true;
         return () => {
-            this.controller.kick(KICK_FORCE, -angle)
+            this.controller.kick(30, -angle)
         }
     }
 }
@@ -331,7 +367,12 @@ class Substitute extends Player {
         this.name = "substitute"
         this.state = "root"
         this.forward = null
-        this.turned = false
+        this.cur = 0
+        this.target = FLAGS.fplb
+        this.targets = [FLAGS.fplb, FLAGS.fgrb]
+        this.motion = false
+        this.seeBall = false
+        this.ready = false
     }
 
     updateState() {
@@ -340,20 +381,47 @@ class Substitute extends Player {
 
         this.forward = this.agent.objects.find(el => el.team === this.agent.team && el.number == this.forwardId)
 
+        this.gates = this.agent.side === "r" ? FLAGS.gl : FLAGS.gr
         while (isNil(this.action)) {
             switch (this.state) {
                 case "root":
-                    if (isNil(this.forward))
-                        this.action = "searching"
+                    if (this.motion)
+                        this.state = "waitBall"
                     else
-                        this.state = "moveToAttacker"
+                        this.action = "moveToTarget"
                     break
-                case "moveToAttacker":
-                    this.turned = false
-                    if (FLAGS.distance(this.agent, this.forward) > DIST_BALL * 10)
-                        this.action = "move"
-                    else
-                        this.action = "wait"
+                case "waitBall":
+                    if (isDefined(this.ball) || this.seeBall) {
+                        this.seeBall = true;
+                        this.state = "seeBall"
+                    } else {
+                        this.isBall = false;
+                        this.action = "moveToTarget"
+                    }
+                    break;
+                case "seeBall":
+                    if (isNil(this.ball)) {
+                        this.action = "findBall"
+                    } else {
+                        this.state = "toBall"
+                    }
+                    break
+                case "toBall":
+                    if (FLAGS.distance(this.agent, this.ball) > DIST_BALL) {
+                        this.target = this.ball
+                        this.isBall = false;
+                        this.action = "moveToTarget"
+                    } else {
+                        this.state = "gatesPerformance"
+                    }
+                    break
+                case "gatesPerformance":
+                    if (FLAGS.distance(this.agent, this.gates) > MAX_GOAL_DIST) {
+                        this.target = this.gates;
+                        this.isBall = true;
+                        this.action = "moveToTarget"
+                    } else
+                        this.action = "performGoal"
                     break
             }
         }
@@ -361,22 +429,80 @@ class Substitute extends Player {
 
     updateAction() {
         switch (this.action) {
-            case "searching":
-                return this.searching()
-            case "move":
-                return this.goTo(this.forward, SPEED)
-
-            case "wait":
-                return this.goTo(this.forward, SPEED / 4)
-
+            case "moveToTarget":
+                return this.moveToTarget()
+            case "moveForward":
+                return this.moveForward()
+            case "performGoal":
+                return this.performGoal()
+            case "findBall":
+                return this.findBall()
         }
     }
 
-    searching() {
+    moveToTarget() {
+        if (FLAGS.distance(this.agent, this.target) < DIST_BALL) {
+            this.cur++;
+            if (this.cur < 2) {
+                this.target = this.targets[this.cur]
+            } else {
+                this.target = this.gates
+                this.seeBall = true;
+            }
+            return () => {
+            }
+        }
+        return this.goTo(this.target, SPEED, this.isBall)
+    }
+
+    moveForward() {
         return () => {
-            this.controller.turn(SEARCH_ANGLE)
+            this.controller.dash(100)
         }
     }
+
+    performGoal() {
+        if (this.ready) {
+            let goalie = this.agent.objects.find(el => el.team !== this.agent.team);
+
+            let point = this.gates;
+            let max = FLAGS.distance(this.agent, point)
+
+            if (FLAGS.distance(this.agent, {x: this.gates.x, y: this.gates.y + 3}) > max) {
+                max = FLAGS.distance(this.agent, {x: this.gates.x, y: this.gates.y + 3});
+                point = {x: this.gates.x, y: this.gates.y + 3}
+            }
+            if (FLAGS.distance(this.agent, {x: this.gates.x, y: this.gates.y - 3}) > max) {
+                point = {x: this.gates.x, y: this.gates.y - 3}
+            }
+            let angle = this.getAngle(this.agent, this.agent.zeroVector, point)
+
+            return () => {
+                // console.log("kicked")
+                this.controller.kick(KICK_FORCE, -angle)
+            }
+        } else {
+            let angle = this.getAngle(this.agent, this.agent.zeroVector, this.gates)
+            this.ready = true;
+            return () => {
+                this.controller.turn(-angle)
+            }
+        }
+    }
+
+    findBall() {
+        if (isNil(this.ballMemory)) {
+            let angle = this.getAngle(this.agent, this.agent.zeroVector, this.ballMemory)
+            this.ballMemory = null;
+            return () => {
+                this.controller.turn(-angle)
+            }
+        }
+        return () => {
+            this.controller.turn(SEARCH_ANGLE);
+        }
+    }
+
 }
 
 module.exports = {

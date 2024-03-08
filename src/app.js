@@ -19,13 +19,6 @@ let agent = new Agent(teamName, role)
 require('./socket')(agent, teamName, VERSION, role === "goalie" ? "(goalie)" : "")
 const [x, y] = program.opts().params
 
-// let rl = readline.createInterface({ // Чтение консоли
-//     input: process.stdin,
-//     output: process.stdout,
-// })
-
-// rl.on('line', (input) => program.opts().manual ? agent.manualControl(input) : agent.controller.parseRefereeCmd(input))
-
 /**
  * callback on socket setup
  */
