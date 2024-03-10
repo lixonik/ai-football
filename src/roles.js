@@ -10,8 +10,8 @@ const MAX_GOAL_DIST = 25
 const KICK_FORCE = 80
 const DRIBBLE_FORCE = 20
 const SEARCH_ANGLE = 90
-const SPEED = 100
-const FORCE_PER_DISTANCE = 2.3
+const SPEED = 80
+const FORCE_PER_DISTANCE = 1.5
 
 
 class Player {
@@ -192,7 +192,7 @@ class Goalie extends Player {
             this.updateState()
             return this.updateAction()
         }
-        return this.goTo(this.posAccordingly, SPEED * 1.2)
+        return this.goTo(this.posAccordingly, SPEED * 1.1)
     }
 
     backToGates() {
