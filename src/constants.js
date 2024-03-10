@@ -34,11 +34,11 @@ module.exports = {
         },
     },
     Messages: {
-            switchForward: "a",// "a?id" team(1)+cmd(1)+newAttacker(2)
-            coverMe: "b",// "b?0/1/2" team(1)+cmd(1)+player(2)+type(1)
-            sendMe: "c", // "c" team(1)+cmd(1)+playerName(2)+x(3)+y(3)
-            goTo: "d", // "d?x?y" team(1)+cmd(1)+player(2)+x(3)+y(3)
-            givePass: "e", // "e?x?y" team(1)+cmd(1)+player(2)+x(3)+y(3)
+            switchForward: "a",
+            coverMe: "b",
+            sendMe: "c",
+            goTo: "d",
+            givePass: "e",
             go: "g"
     }
 }

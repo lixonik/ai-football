@@ -5,7 +5,7 @@ const { isNil, isDefined } = require("./utils")
 
 const DIST_BALL = 0.5
 const DIST_FLAG = 3
-const FOLLOW_ANGLE = 20
+const FOLLOW_ANGLE = 15
 const MAX_GOAL_DIST = 25
 const KICK_FORCE = 80
 const DRIBBLE_FORCE = 20
@@ -372,7 +372,7 @@ class Substitute extends Player {
         this.forward = null
         this.cur = 0
         this.target = FLAGS.fplb
-        this.targets = [FLAGS.fplb, FLAGS.fgrb]
+        this.targets = [FLAGS.fplb, FLAGS.fgrt]
         this.motion = false
         this.seeBall = false
         this.ready = false
