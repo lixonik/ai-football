@@ -1,17 +1,6 @@
 const { roundToHund, normalize, do180 } = require('./math_utils')
-const { FLAGS } = require('./constants')
-const actions = require('./actions')
+const { FLAGS, CONSTANTS } = require('./constants')
 const { isNil, isDefined } = require("./utils")
-
-const DIST_BALL = 0.5
-const DIST_FLAG = 3
-const FOLLOW_ANGLE = 15
-const MAX_GOAL_DIST = 25
-const KICK_FORCE = 80
-const DRIBBLE_FORCE = 20
-const SEARCH_ANGLE = 90
-const SPEED = 80
-const FORCE_PER_DISTANCE = 1.5
 
 
 class Player {
@@ -41,9 +30,9 @@ class Player {
 
 
         if (isBall)
-            return () => { this.controller.kick(DRIBBLE_FORCE, -angle) }
+            return () => { this.controller.kick(CONSTANTS.DRIBBLE_FORCE, -angle) }
 
-        if (Math.abs(angle) > FOLLOW_ANGLE) {
+        if (Math.abs(angle) > CONSTANTS.FOLLOW_ANGLE) {
             return () => {
                 this.controller.turn(-angle)
             }
@@ -100,19 +89,19 @@ class Goalie extends Player {
                         this.action = "findBall"
                     break
                 case "checkBall":
-                    if (FLAGS.distance(this.agent, this.ball) <= DIST_BALL * 16)
+                    if (FLAGS.distance(this.agent, this.ball) <= CONSTANTS.DIST_BALL * 16)
                         this.state = "smallDistance"
                     else
                         this.state = "bigDistance"
                     break
                 case "smallDistance":
-                    if (FLAGS.distance(this.agent, this.ball) > DIST_FLAG)
+                    if (FLAGS.distance(this.agent, this.ball) > CONSTANTS.DIST_FLAG)
                         this.action = "getBall"
                     else
                         this.state = "blockGoal"
                     break
                 case "readyToBlockGoal":
-                    if (isNil(tmpBall) || FLAGS.distance(this.agent, this.ball) > DIST_FLAG){
+                    if (isNil(tmpBall) || FLAGS.distance(this.agent, this.ball) > CONSTANTS.DIST_FLAG){
                         this.action = "rotateOnMemory"
                         this.ball = {x: 0, y: 0}
                     }
@@ -120,19 +109,19 @@ class Goalie extends Player {
                         this.state = "blockGoal"
                     break
                 case "blockGoal":
-                    if (FLAGS.distance(this.agent, this.ball) > DIST_BALL * 4)
+                    if (FLAGS.distance(this.agent, this.ball) > CONSTANTS.DIST_BALL * 4)
                         this.action = "kick"
                     else
                         this.action = "catch"
                     break
                 case "bigDistance":
-                    if (FLAGS.distance(this.agent, this.pointInGates) <= DIST_BALL * 2)
+                    if (FLAGS.distance(this.agent, this.pointInGates) <= CONSTANTS.DIST_BALL * 2)
                         this.action = "backToGates"
                     else
                         this.state = "control"
                     break
                 case "control":
-                    if (Math.abs(this.agent.y - this.ball.y) <= DIST_BALL * 4)
+                    if (Math.abs(this.agent.y - this.ball.y) <= CONSTANTS.DIST_BALL * 4)
                         this.action = "rotateOnMemory"
                     else
                         this.action = "moveToBall"
@@ -175,7 +164,7 @@ class Goalie extends Player {
         this.ball = {x: 0, y: 0}
         let angle = this.getAngle(this.agent, this.agent.zeroVector, this.agent.side === "r" ? FLAGS.gl : FLAGS.gr)
         return () => {
-            this.controller.kick(KICK_FORCE, -angle)
+            this.controller.kick(CONSTANTS.KICK_FORCE, -angle)
         }
     }
 
@@ -187,16 +176,16 @@ class Goalie extends Player {
             x: x3,
             y: y1 + ((y2 - y1) / (x2 - x1)) * (x3 - x1)
         }
-        if (FLAGS.distance(this.agent, this.posAccordingly) <= DIST_BALL * 2) {
+        if (FLAGS.distance(this.agent, this.posAccordingly) <= CONSTANTS.DIST_BALL * 2) {
             this.state = "readyToBlockGoal"
             this.updateState()
             return this.updateAction()
         }
-        return this.goTo(this.posAccordingly, SPEED * 1.1)
+        return this.goTo(this.posAccordingly, CONSTANTS.RUN)
     }
 
     backToGates() {
-        return this.goTo(this.pointInGates, SPEED)
+        return this.goTo(this.pointInGates, CONSTANTS.SPEED)
     }
 
     rotateOnMemory() {
@@ -222,7 +211,7 @@ class Goalie extends Player {
             return this.updateAction()
         }
         return () => {
-            this.controller.turn(SEARCH_ANGLE)
+            this.controller.turn(CONSTANTS.SEARCH_ANGLE)
         }
     }
 
@@ -236,7 +225,7 @@ class Goalie extends Player {
             this.updateState()
             return this.updateAction()
         }
-        return this.goTo(this.posAccordingly, SPEED)
+        return this.goTo(this.posAccordingly, CONSTANTS.SPEED)
     }
 }
 
@@ -284,7 +273,7 @@ class Forward extends Player {
                         this.state = "moveToBall"
                     break
                 case "moveToBall":
-                    if (FLAGS.distance(this.agent, this.ball) > DIST_BALL)
+                    if (FLAGS.distance(this.agent, this.ball) > CONSTANTS.DIST_BALL)
                         this.action = "getBall"
                     else
                         this.state = "action"
@@ -305,7 +294,7 @@ class Forward extends Player {
             case "moveToTarget":
                 return this.moveToTarget()
             case "getBall":
-                return this.goTo(this.ball, SPEED)
+                return this.goTo(this.ball, CONSTANTS.SPEED)
             case "givePass":
                 return this.givePass()
             case "throw":
@@ -326,16 +315,16 @@ class Forward extends Player {
             }
         }
         return () => {
-            this.controller.turn(FOLLOW_ANGLE)
+            this.controller.turn(CONSTANTS.FOLLOW_ANGLE)
         }
     }
 
     moveToTarget() {
-        if (FLAGS.distance(this.agent, this.target) <= DIST_BALL) {
+        if (FLAGS.distance(this.agent, this.target) <= CONSTANTS.DIST_BALL) {
             this.target = null
             return () => {}
         }
-        return this.goTo(this.target, SPEED)
+        return this.goTo(this.target, CONSTANTS.SPEED)
     }
 
     givePass() {
@@ -345,7 +334,7 @@ class Forward extends Player {
             this.controller.sayGo()
             this.end = true;
             return () => {
-                this.controller.kick(FLAGS.distance(this.agent, destination) * FORCE_PER_DISTANCE, -angle)
+                this.controller.kick(FLAGS.distance(this.agent, destination) * CONSTANTS.FORCE_PER_DISTANCE, -angle)
             }
         } else {
             this.ready = true;
@@ -413,7 +402,7 @@ class Substitute extends Player {
                     }
                     break
                 case "toBall":
-                    if (FLAGS.distance(this.agent, this.ball) > DIST_BALL) {
+                    if (FLAGS.distance(this.agent, this.ball) > CONSTANTS.DIST_BALL) {
                         this.target = this.ball
                         this.isBall = false;
                         this.action = "moveToTarget"
@@ -422,7 +411,7 @@ class Substitute extends Player {
                     }
                     break
                 case "gatesPerformance":
-                    if (FLAGS.distance(this.agent, this.gates) > MAX_GOAL_DIST) {
+                    if (FLAGS.distance(this.agent, this.gates) > CONSTANTS.MAX_GOAL_DIST) {
                         this.target = this.gates
                         this.isBall = true
                         this.action = "moveToTarget"
@@ -447,7 +436,7 @@ class Substitute extends Player {
     }
 
     moveToTarget() {
-        if (FLAGS.distance(this.agent, this.target) < DIST_BALL) {
+        if (FLAGS.distance(this.agent, this.target) < CONSTANTS.DIST_BALL) {
             this.cur++
             if (this.cur < 2) {
                 this.target = this.targets[this.cur]
@@ -485,7 +474,7 @@ class Substitute extends Player {
 
             return () => {
                 // console.log("kicked")
-                this.controller.kick(KICK_FORCE, -angle)
+                this.controller.kick(CONSTANTS.KICK_FORCE, -angle)
             }
         } else {
             let angle = this.getAngle(this.agent, this.agent.zeroVector, this.gates)
@@ -505,7 +494,7 @@ class Substitute extends Player {
             }
         }
         return () => {
-            this.controller.turn(SEARCH_ANGLE);
+            this.controller.turn(CONSTANTS.SEARCH_ANGLE);
         }
     }
 

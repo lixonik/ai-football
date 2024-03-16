@@ -40,5 +40,20 @@ module.exports = {
             goTo: "d",
             givePass: "e",
             go: "g"
+    },
+    CONSTANTS: {
+        DIST_BALL : 0.5,
+        DIST_FLAG : 3,
+        FOLLOW_ANGLE : 15,
+        MAX_GOAL_DIST : 25,
+        KICK_FORCE : 80,
+        DRIBBLE_FORCE : 30,
+        SEARCH_ANGLE : 90,
+        SPEED : 80,
+        RUN : 120,
+        FORCE_PER_DISTANCE : 2,
+        INTERCEPT_DIST: 5,
+        KICKOUT_FORCE: 100,
+        UPDATE_MEMORY: 10
     }
 }

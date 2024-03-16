@@ -7,6 +7,11 @@ const { isNil, isDefined } = require("./utils")
 const { Goalie, Substitute, Forward } = require('./Roles')
 const SoundManager = require('./soundManager')
 
+const Memory = require('./memory')
+const Manager = require('./StateMachine/Manager')
+const FSM = require("./StateMachine/FSM")
+const GSM = require('./StateMachine/GSM')
+
 class Agent {
     constructor(teamName, role) {
         this.connected = false
@@ -24,32 +29,15 @@ class Agent {
         this.y = null
         this.controller = new Controller(this)
         this.soundManager = new SoundManager(this)
-
-        if (role === "goalie")
-        {
-            this.role = new Goalie(this)
-        } else {
-            this.role = null
-        }
+        this.memory = new Memory(this)
+        this.goalie = role === "goalie"
+        if (this.goalie)
+            this.player_state_machine = new GSM(this)
+        else
+            this.player_state_machine = new FSM(this)
 
         this.onConnection = () => {
         }
-    }
-
-
-    /**
-     * TODO: add manual control implementation
-     * @param input
-     */
-    manualControl(input) {
-        console.log('manual')
-        // if (this.run) { // Если игра начата
-        //     // Движения вперед, вправо, влево, удар по мячу
-        //     if ('w' === input) this.act = () => { n: 'dash', v: 100 }
-        //     if ('d' === input) this.act = () => { n: 'turn', v: 20 }
-        //     if ('a' === input) this.act =() => { n: 'turn', v: -20 }
-        //     if ('s' === input) this.act = () =>{ n: 'kick', v: 100 }
-        // }
     }
 
     msgGot(msg) { // Получение сообщения
@@ -252,7 +240,8 @@ class Agent {
             }
             return
         }
-        this.act = this.role.update()
+        this.memory.analyze()
+        this.act = this.manager.getAction()
         this.act()
     }
 }

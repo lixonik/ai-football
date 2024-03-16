@@ -23,5 +23,11 @@ module.exports = {
                 angle += 360
         }
         return angle
+    },
+
+    getAngle(pos, dir, targetPos) {
+        let v = normalize(pos, targetPos)
+        let angle = do180((-Math.atan2(v.y, v.x) - Math.atan2(dir.y, dir.x)) * 180 / Math.PI)
+        return angle
     }
 }
