@@ -1,10 +1,3 @@
-module.exports = {
-	roundToHund,
-	normalize,
-	do180,
-	getAngle
-}
-
 roundToHund = (num) => {
 	return Math.round(num * 100) / 100.0 // rounding to hundredths
 }
@@ -34,4 +27,11 @@ getAngle = (pos, dir, targetPos) => {
 	let v = normalize(pos, targetPos)
 	let angle = do180((-Math.atan2(v.y, v.x) - Math.atan2(dir.y, dir.x)) * 180 / Math.PI)
 	return angle
+}
+
+module.exports = {
+	roundToHund,
+	normalize,
+	do180,
+	getAngle
 }

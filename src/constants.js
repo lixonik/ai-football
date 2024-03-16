@@ -47,7 +47,7 @@ module.exports = {
         FOLLOW_ANGLE : 15,
         MAX_GOAL_DIST : 25,
         KICK_FORCE : 80,
-        DRIBBLE_FORCE : 30,
+        DRIBBLE_FORCE : 15,
         SEARCH_ANGLE : 90,
         SPEED : 80,
         RUN : 120,
