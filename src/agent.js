@@ -35,6 +35,8 @@ class Agent {
             this.player_state_machine = new GSM(this)
         else
             this.player_state_machine = new FSM(this)
+        
+        this.manager = new Manager(this)
 
         this.onConnection = () => {
         }

@@ -5,8 +5,8 @@ const {isNil, isDefined} = require("../utils")
 class FSM {
     constructor(agent) {
         this.memory = agent.memory
-        this.at_term = {n: "start", next: true}
-        this.agent = agent.agentironment
+        this.state = {n: "start", next: true}
+        this.agent = agent
         this.controller = agent.controller
         this.current = "start"
         this.next = true;
