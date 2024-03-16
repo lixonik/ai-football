@@ -1,5 +1,5 @@
 const {Messages} = require('./constants')
-const {Forward, Substitute} = require("./Roles")
+const {Forward, Substitute} = require("./roles")
 
 class SoundManager {
     constructor(agent) {

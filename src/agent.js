@@ -4,7 +4,7 @@ const { FLAGS } = require('./constants')
 const Controller = require('./controller')
 const { isNil, isDefined } = require("./utils")
 
-const { Goalie, Substitute, Forward } = require('./Roles')
+const { Goalie, Substitute, Forward } = require('./roles')
 const SoundManager = require('./soundManager')
 
 class Agent {
@@ -83,7 +83,7 @@ class Agent {
                 let countPlayer = this.objects.filter((p) => p.team === this.team)
                 if (countPlayer.length === 0) this.role = new Forward(this)
                 else this.role = new Substitute(this)
-            } 
+            }
             this.sendCmd() // Отправка команды
         }
     }
