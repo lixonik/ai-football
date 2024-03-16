@@ -84,7 +84,7 @@ class FSM {
 				}
 				if (isNil(this.agent.objects.find(el => el.type === "ball"))) {
 					this.memory.age = 1000
-					return this.controller.turn(90)
+					return this.controller.turn(AGENT_CHARACTERISTICS.SEARCH_ANGLE)
 				}
 				return this.controller.dash(AGENT_CHARACTERISTICS.SPEED)
 			},
