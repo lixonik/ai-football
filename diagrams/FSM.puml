@@ -1,0 +1,50 @@
+@startuml
+[*] --> start : Инициализация
+
+state "start" as start
+state "nearBall" as nearBall
+state "farBall" as farBall
+state "gatesNear" as gatesNear
+state "gatesFar" as gatesFar
+state "memoryUpdate" as memoryUpdate
+
+start --> nearBall : Мяч на достаточно близком расстоянии для контроля
+start --> farBall : Мяч на расстоянии, превышающем дистанцию для контроля
+nearBall --> gatesNear : Ворота противника на расстоянии удара
+nearBall --> gatesFar : Ворота противника далеко, но мяч под контролем
+farBall --> nearBall : Мяч подходит ближе для контроля
+memoryUpdate --> start : Необходимо обновить информацию в памяти
+gatesNear --> start : Завершение атаки и возобновление игры
+gatesFar --> gatesNear : Переход от дриблинга к подходу к воротам для удара
+
+note right of memoryUpdate
+    Информация устарела и
+    нуждается в обновлении
+end note
+
+note right of start
+    Исходное положение
+    нападающего игрока
+end note
+
+note right of nearBall
+    Мяч на игровом расстоянии
+    для нападающего
+end note
+
+note right of farBall
+    Мяч вне игрового расстоянии,
+    требуется переход к мячу
+end note
+
+note left of gatesNear
+    Игрок находится в позиции для
+    непосредственного удара по воротам
+end note
+
+note left of gatesFar
+    Игрок далек от ворот и
+    ведет мяч, подготавливаясь к удару
+end note
+
+@enduml

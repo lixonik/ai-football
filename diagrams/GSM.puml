@@ -1,0 +1,67 @@
+@startuml
+[*] --> start : Инициализация
+
+state "start" as start
+state "closeBall" as closeBall
+state "nearBall" as nearBall
+state "farBall" as farBall
+state "catch" as catch
+state "kick" as kick
+state "intercept" as intercept
+state "wait" as wait
+state "backToGates" as backToGates
+state "controlBall" as controlBall
+state "memoryUpdate" as memoryUpdate
+
+start --> closeBall : Мяч очень близко
+start --> nearBall : Мяч в зоне перехвата
+start --> farBall : Мяч далеко
+
+closeBall --> catch : Поймать мяч
+catch --> kick : Ударить мяч
+kick --> start : Начать сначала
+
+nearBall --> intercept : Перехватить мяч
+intercept --> start : Начать сначала
+
+farBall --> backToGates : Вернуться к воротам
+farBall --> controlBall : Контролировать мяч
+
+controlBall --> start : Начать сначала
+backToGates --> start : Начать сначала
+
+memoryUpdate --> start : Обновление памяти
+
+wait -up-> start : Ожидание
+
+note right of wait
+    Ожидание сигнала для
+    начала действий
+end note
+
+note right of memoryUpdate
+    Проверка условия для
+    обновления информации
+end note
+
+note right of backToGates
+    Движение к воротам для
+    защиты цели
+end note
+
+note right of controlBall
+    Контроль мяча и переход
+    к начальному состоянию
+end note
+
+note right of kick
+    После удара ждем
+    следующего действия
+end note
+
+note right of catch
+    Попытка поймать мяч и
+    сразу удар
+end note
+
+@enduml
