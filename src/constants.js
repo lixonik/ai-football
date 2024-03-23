@@ -53,6 +53,7 @@ module.exports = {
 		FORCE_PER_DISTANCE: 2,
 		INTERCEPT_DIST: 5,
 		KICKOUT_FORCE: 100,
-		UPDATE_MEMORY: 10
+		UPDATE_MEMORY: 10,
+        ENEMY_ZONE: 7
 	}
 }

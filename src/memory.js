@@ -10,6 +10,8 @@ class Memory {
 		this.age = 1000
 		this.rem = null
 		this.updated = 0
+        this.moreActs = -1
+        this.heardAllies = []
 	}
 
 	analyze() {
@@ -17,7 +19,13 @@ class Memory {
 		let cell = this.formMemoryCell()
 		this.stack.push(cell)
 		this.rem = this.retrieveLastInfo()
+        this.heardAllies = this.agent.soundManager.heardAllies
 	}
+
+    clearMemory() {
+        this.stack = []
+        this.age = 1000;
+    }
 
 	formMemoryCell() {
 		let ball = this.agent.objects.find(el => el.type === "ball")
@@ -63,58 +71,58 @@ class Memory {
 		return retCell
 	}
 
-	updateMemory(controller, type, at) {
-		let pos = at.memory.rem.pos
-		let gates = at.memory.rem.enemyGates
-		if (isNil(this.waysToLook))
-			if (type === "kicker")
-				this.waysToLook = [
-					{ x: pos.x, y: pos.y + 10 },
-					{ x: pos.x + 10, y: pos.y },
-					{ x: pos.x, y: pos.y - 10 },
-					{ x: pos.x - 10, y: pos.y }
-				]
-			else if (type === "goalie") {
-				if (gates === FLAGS.gr)
-					if (FLAGS.distance(pos, at.initial) > AGENT_CHARACTERISTICS.DIST_BALL * 5) {
-						this.waysToLook = [
-							{ x: pos.x, y: pos.y + 10 },
-							{ x: pos.x + 10, y: pos.y },
-							{ x: pos.x, y: pos.y - 10 },
-							{ x: pos.x - 10, y: pos.y }
-						]
-					} else {
-						this.waysToLook = [
-							{ x: pos.x + 10, y: pos.y + 10 },
-							{ x: pos.x + 10, y: pos.y - 10 }
-						]
-					}
-				else if (FLAGS.distance(pos, at.initial) > AGENT_CHARACTERISTICS.DIST_BALL * 5) {
-					this.waysToLook = [
-						{ x: pos.x, y: pos.y + 10 },
-						{ x: pos.x + 10, y: pos.y },
-						{ x: pos.x, y: pos.y - 10 },
-						{ x: pos.x - 10, y: pos.y }
-					]
-				} else {
-					this.waysToLook = [
-						{ x: pos.x - 10, y: pos.y + 10 },
-						{ x: pos.x - 10, y: pos.y - 10 }
-					]
-				}
+	// updateMemory(controller, type, at) {
+	// 	let pos = at.memory.rem.pos
+	// 	let gates = at.memory.rem.enemyGates
+	// 	if (isNil(this.waysToLook))
+	// 		if (type === "kicker")
+	// 			this.waysToLook = [
+	// 				{ x: pos.x, y: pos.y + 10 },
+	// 				{ x: pos.x + 10, y: pos.y },
+	// 				{ x: pos.x, y: pos.y - 10 },
+	// 				{ x: pos.x - 10, y: pos.y }
+	// 			]
+	// 		else if (type === "goalie") {
+	// 			if (gates === FLAGS.gr)
+	// 				if (FLAGS.distance(pos, at.initial) > AGENT_CHARACTERISTICS.DIST_BALL * 5) {
+	// 					this.waysToLook = [
+	// 						{ x: pos.x, y: pos.y + 10 },
+	// 						{ x: pos.x + 10, y: pos.y },
+	// 						{ x: pos.x, y: pos.y - 10 },
+	// 						{ x: pos.x - 10, y: pos.y }
+	// 					]
+	// 				} else {
+	// 					this.waysToLook = [
+	// 						{ x: pos.x + 10, y: pos.y + 10 },
+	// 						{ x: pos.x + 10, y: pos.y - 10 }
+	// 					]
+	// 				}
+	// 			else if (FLAGS.distance(pos, at.initial) > AGENT_CHARACTERISTICS.DIST_BALL * 5) {
+	// 				this.waysToLook = [
+	// 					{ x: pos.x, y: pos.y + 10 },
+	// 					{ x: pos.x + 10, y: pos.y },
+	// 					{ x: pos.x, y: pos.y - 10 },
+	// 					{ x: pos.x - 10, y: pos.y }
+	// 				]
+	// 			} else {
+	// 				this.waysToLook = [
+	// 					{ x: pos.x - 10, y: pos.y + 10 },
+	// 					{ x: pos.x - 10, y: pos.y - 10 }
+	// 				]
+	// 			}
 
-			}
-		let way = this.updated
-		let angle = getAngle(at.agent, at.agent.zeroVector, this.waysToLook[way])
-		this.updated++
-		if (this.updated === this.waysToLook.length) {
-			this.updated = 0
-			this.age = 0
-			this.waysToLook = null
-		}
+	// 		}
+	// 	let way = this.updated
+	// 	let angle = getAngle(at.agent, at.agent.zeroVector, this.waysToLook[way])
+	// 	this.updated++
+	// 	if (this.updated === this.waysToLook.length) {
+	// 		this.updated = 0
+	// 		this.age = 0
+	// 		this.waysToLook = null
+	// 	}
 
-		return controller.turn(-angle)
-	}
+	// 	return controller.turn(-angle)
+	// }
 }
 
 module.exports = Memory

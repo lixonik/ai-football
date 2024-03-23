@@ -7,9 +7,9 @@ const { isNil, isDefined } = require("./utils")
 const SoundManager = require('./soundManager')
 
 const Memory = require('./memory')
-const Manager = require('./StateMachine/Manager')
-const FSM = require("./StateMachine/FSM")
-const GSM = require('./StateMachine/GSM')
+
+const FHController = require("./Controllers/Forward/FHController")
+const GHController = require('./Controllers/Goalie/GHController')
 
 class Agent {
     constructor(teamName, role) {
@@ -31,11 +31,9 @@ class Agent {
         this.memory = new Memory(this)
         this.goalie = role === "goalie"
         if (this.goalie)
-            this.player_state_machine = new GSM(this)
+            this.player_controller = new GHController(this)
         else
-            this.player_state_machine = new FSM(this)
-        
-        this.manager = new Manager(this)
+            this.player_controller = new FHController(this)
 
         this.onConnection = () => {
         }
@@ -231,13 +229,14 @@ class Agent {
     sendCmd() {
         if (!this.run) { // Игра не начата
             if (isNil(this.marker) && this.side === "r") {
-                this.controller.turn(180)
+                this.act = this.controller.turn(180)
+                this.act()
                 this.marker = true
             }
             return
         }
         this.memory.analyze()
-        this.act = this.manager.getAction()
+        this.act = this.player_controller.getAction()
         this.act()
     }
 }
