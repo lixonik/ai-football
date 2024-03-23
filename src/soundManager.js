@@ -26,7 +26,7 @@ class SoundManager {
     }
     if (this.agent.gamemode === 'play_on') {
       if (this.agent.gamemode === 'play_on') {
-        this.agent.player_state_machine.current = 'memoryUpdate_start'
+        // this.agent.player_state_machine.current = 'memoryUpdate_start'
         this.agent.run = true
       }
     }

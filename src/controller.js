@@ -10,34 +10,34 @@ class Controller {
 		this.type = []
 	}
 
-	move(x, y) {
-		this.agent.socketSend("move", `${x} ${y}`)
+	move(x, y)  {
+		return () => this.agent.socketSend("move", `${x} ${y}`)
 	}
 
 	kick(force, angle = 0) {
-		this.agent.socketSend("kick", `${force} ${angle}`)
+		return () =>  this.agent.socketSend("kick", `${force} ${angle}`)
 	}
 
 	dash(velocity) {
-		this.agent.socketSend("dash", `${velocity}`)
+		return () => this.agent.socketSend("dash", `${velocity}`)
 	}
 
 	turn(angle) {
-		this.agent.socketSend("turn", `${angle}`)
+		return () => this.agent.socketSend("turn", `${angle}`)
 	}
 
 	catch(angle) {
-		this.agent.socketSend("catch", `${angle}`)
+		return () => this.agent.socketSend("catch", `${angle}`)
 	}
 
 	say(message) {
-		this.agent.socketSend("say", `${message}`)
+		return () => this.agent.socketSend("say", `${message}`)
 	}
 
 	sayGo() {
 		let message =
 			this.agent.team.charAt(0) + Messages.go
-		this.say(message)
+		return this.say(message)
 	}
 
 	sayGoTo(target, x, y) {
@@ -49,7 +49,7 @@ class Controller {
 			(target < 10 ? "0" + target : target) +
 			(x < 0 ? (x > -10 ? "-0" + Math.abs(x) : "-" + Math.abs(x)) : (x < 10 ? "+0" + x : "+" + x)) +
 			(y < 0 ? (y > -10 ? "-0" + Math.abs(y) : "-" + Math.abs(y)) : (y < 10 ? "+0" + y : "+" + y))
-		this.say(message)
+		return this.say(message)
 	}
 
 	saySwitchForward(id) {
@@ -57,7 +57,7 @@ class Controller {
 			this.agent.team.charAt(0) + Messages.switchForward +
 			(id < 10 ? "0" + id : id)
 		// console.log(message)
-		this.say(message)
+		return this.say(message)
 	}
 
 	sayGivePass(id) {
@@ -68,7 +68,7 @@ class Controller {
 			(id < 10 ? "0" + id : id) +
 			(x < 0 ? (x > -10 ? "-0" + Math.abs(x) : "-" + Math.abs(x)) : (x < 10 ? "+0" + x : "+" + x)) +
 			(y < 0 ? (y > -10 ? "-0" + Math.abs(y) : "-" + Math.abs(y)) : (y < 10 ? "+0" + y : "+" + y))
-		this.say(message)
+		return this.say(message)
 	}
 
 	saySendMe() {
@@ -80,7 +80,7 @@ class Controller {
 			(id < 10 ? "0" + id : id) +
 			(x < 0 ? (x > -10 ? "-0" + Math.abs(x) : "-" + Math.abs(x)) : (x < 10 ? "+0" + x : "+" + x)) +
 			(y < 0 ? (y > -10 ? "-0" + Math.abs(y) : "-" + Math.abs(y)) : (y < 10 ? "+0" + y : "+" + y))
-		this.say(message)
+		return this.say(message)
 	}
 
 }

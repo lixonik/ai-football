@@ -15,7 +15,7 @@ class Agent {
     constructor(teamName, role) {
         this.connected = false
         this.team = teamName
-        this.side = 'l' // По умолчанию - левая половина поля
+        this.side = 'l' // По умолчанию - правая половина поля
         this.run = false // Игра начата
         this.act = () => {} // Действия
 
