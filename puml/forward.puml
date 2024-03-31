@@ -1,0 +1,32 @@
+@startuml
+
+class FHController {
+  +constructor(agent)
+  +getAction()
+  +compileEverything()
+}
+
+class FMController {
+  +constructor(agent)
+  +getAction(data)
+  +updateMemory(data, memory)
+}
+
+class FLController {
+  +constructor(agent)
+  +getActionForForward(data)
+  +getActionForDefender(data)
+  +passSomeone()
+  +getBall()
+  +kickToGates()
+  +moveToGates()
+  +moveToSpot(spot)
+  +controllBall()
+  +kickToPoint(point)
+  +getCircle()
+}
+
+FHController --> FMController : contains
+FMController --> FLController : contains
+
+@enduml

@@ -1,0 +1,29 @@
+@startuml
+
+class GHController {
+  +constructor(agent)
+  +getAction()
+  +compileEverything()
+}
+
+class GMController {
+  +constructor(agent)
+  +getAction(data)
+  +updateMemory(data, memory)
+}
+
+class GLController {
+  +constructor(agent)
+  +getAction(data)
+  +catch()
+  +moveToSpot(spot)
+  +controllBall()
+  +getBall()
+  +kickToGates()
+  +getCircle()
+}
+
+GHController --> GMController : contains
+GMController --> GLController : contains
+
+@enduml
